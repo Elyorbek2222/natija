@@ -382,6 +382,13 @@ tbody td:first-child{font-weight:500;}
   width:5px;height:5px;border-radius:50%;
   background:currentColor;flex-shrink:0;
 }
+.rp-del{
+  margin-left:4px;font-size:13px;line-height:1;
+  opacity:0.4;transition:opacity .15s;
+  padding:0 2px;
+}
+.rpt-pill:hover .rp-del{opacity:0.8;}
+.rp-del:hover{opacity:1!important;color:#ef4444;}
 #filterBar{display:none;}
 
 /* ── RESPONSIVE ── */
@@ -415,6 +422,11 @@ tbody td:first-child{font-weight:500;}
   <a class="sb-item" href="upload.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     <div class="sb-tooltip">Yuklash</div>
+  </a>
+
+  <a class="sb-item" href="#" onclick="toggleReportsList(event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <div class="sb-tooltip">Hisobotlar</div>
   </a>
 
   <div class="sb-divider"></div>
@@ -650,7 +662,7 @@ tbody td:first-child{font-weight:500;}
 <script type="module">
 import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, query, orderBy, getDocs }
+import { getFirestore, doc, getDoc, deleteDoc, collection, query, orderBy, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const app  = initializeApp(window.FIREBASE_CONFIG);
@@ -666,6 +678,7 @@ window.addEventListener("scroll", () => {
 
 // ── LOGOUT ───────────────────────────────────────────────────
 window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
+window.toggleReportsList = (e) => { e.preventDefault(); document.getElementById("filterBar").scrollIntoView({behavior:"smooth"}); };
 
 // ── ACCESS CHECK ─────────────────────────────────────────────
 async function checkAccess(uid) {
@@ -741,6 +754,7 @@ function buildFilterPills(reports) {
     const label    = platform + (dateStr ? " · "+dateStr : "");
     return `<button class="rpt-pill${i===0?' active':''}" onclick="selectReport(${i})" id="rp${i}">
       <div class="rp-dot"></div>${label}
+      <span class="rp-del" onclick="deleteReport(event,${i})" title="O'chirish">×</span>
     </button>`;
   }).join("");
   // Pre-populate channel compare with all reports
@@ -770,6 +784,29 @@ window.selectReport = function(idx) {
     if (!_ch[label]) _ch[label] = { cpl: rs>0?sp/rs:0, spend:sp, res:rs, color:COLS[Object.keys(_ch).length%COLS.length] };
   });
   renderDashboard(window._allReports[idx]);
+};
+
+// ── DELETE REPORT ─────────────────────────────────────────────
+window.deleteReport = async function(e, idx) {
+  e.stopPropagation();
+  const all = window._allReports || [];
+  const r   = all[idx];
+  if (!r) return;
+  const platform = r.meta?.platform || r.sourceFile || "Hisobot";
+  if (!confirm(`"${platform}" hisobotini o'chirasizmi?`)) return;
+
+  try {
+    const auth = window.__firebaseAuth || getAuth(window.__firebaseApp);
+    const uid  = auth.currentUser?.uid;
+    if (uid && r.id) await deleteDoc(doc(db,"users",uid,"reports",r.id));
+    // Remove from local array and rebuild
+    all.splice(idx, 1);
+    window._allReports = all;
+    Object.keys(_ch).forEach(k=>delete _ch[k]);
+    if (!all.length) { showEmpty(); document.getElementById("filterBar").style.display="none"; return; }
+    buildFilterPills(all);
+    renderDashboard(all[0]);
+  } catch(err) { alert("Xato: "+err.message); }
 };
 
 function showEmpty() {

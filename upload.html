@@ -721,8 +721,18 @@
       ).toFixed(2)
     };
 
+    // ── Platform auto-detect ──────────────────────────────────
+    function detectPlatform(hdrs) {
+      const h = hdrs.map(x => (x||"").toLowerCase()).join("|");
+      if (h.includes("joins") || h.includes("channel"))          return "Telegram Ads";
+      if (h.includes("расход") || h.includes("кампания"))        return "Yandex Direct";
+      if (h.includes("conversion type") || h.includes("cost per") && h.includes("impressions") && h.includes("cpm")) return "Google Ads";
+      return "Meta Ads";
+    }
+    const platform = detectPlatform(headers);
+
     return {
-      meta: { platform: "Meta Ads", period_start: "", period_end: "", uploaded: new Date().toISOString() },
+      meta: { platform, period_start: "", period_end: "", uploaded: new Date().toISOString() },
       campaigns,
       totals
     };
