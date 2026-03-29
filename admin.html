@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0e0f;
+  --surface: #181a1b;
+  --surface2: #1e2021;
+  --border:  #2a2d2e;
+  --accent:  #c8ff00;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --yellow:  #f59e0b;
+  --text:    #f0f0f0;
+  --muted:   #6b7280;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+/* LOADING */
+.loading-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(13,14,15,0.92);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px; z-index: 200;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--muted); }
+
+/* HEADER */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800;
+  color: var(--accent); letter-spacing: 0.04em;
+}
+.logo span {
+  font-size: 13px; font-weight: 400;
+  color: var(--red); margin-left: 8px;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0;
+  border: 1px solid var(--red);
+  padding: 2px 8px; border-radius: 4px;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
+.user-name { font-size: 13px; color: var(--muted); }
+.logout-btn {
+  padding: 6px 12px; background: transparent;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 12px; color: var(--muted); cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s;
+}
+.logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* MAIN */
+main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px; margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+}
+.stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 6px; }
+.stat-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 30px; font-weight: 700; color: var(--text);
+}
+.stat-value.green { color: var(--green); }
+.stat-value.yellow { color: var(--yellow); }
+
+/* TOOLBAR */
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+}
+.toolbar-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.search-input {
+  padding: 7px 12px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif;
+  width: 220px; outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+
+/* TABLE */
+.table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr {
+  border-bottom: 1px solid rgba(42,45,46,0.5);
+  transition: background 0.1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface2); }
+tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
+
+.avatar-cell { display: flex; align-items: center; gap: 8px; }
+.avatar-sm {
+  width: 28px; height: 28px; border-radius: 50%;
+  object-fit: cover; border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.avatar-ph {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  flex-shrink: 0;
+}
+
+.badge-paid {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 4px; font-size: 11px; font-weight: 600;
+  background: rgba(34,197,94,0.12); color: var(--green);
+  border: 1px solid rgba(34,197,94,0.25);
+}
+.badge-unpaid {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 4px; font-size: 11px; font-weight: 600;
+  background: rgba(107,114,128,0.12); color: var(--muted);
+  border: 1px solid rgba(107,114,128,0.2);
+}
+.badge-expired {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 4px; font-size: 11px; font-weight: 600;
+  background: rgba(239,68,68,0.1); color: var(--red);
+  border: 1px solid rgba(239,68,68,0.2);
+}
+.badge-provider {
+  display: inline-block; padding: 2px 7px;
+  border-radius: 4px; font-size: 10px;
+  background: rgba(255,255,255,0.06); color: var(--muted);
+}
+
+/* ACTION BUTTONS */
+.act-btn {
+  padding: 5px 11px; border-radius: 6px;
+  font-size: 12px; font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; border: none;
+  transition: opacity 0.15s;
+}
+.act-btn:hover { opacity: 0.8; }
+.act-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-grant  { background: rgba(200,255,0,0.15); color: var(--accent); border: 1px solid rgba(200,255,0,0.3); }
+.btn-revoke { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+
+.plan-select {
+  padding: 4px 8px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; outline: none;
+}
+.plan-select:focus { border-color: var(--accent); }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(13,14,15,0.85);
+  align-items: center; justify-content: center;
+  z-index: 150; backdrop-filter: blur(4px);
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px 28px 24px;
+  width: 340px; display: flex; flex-direction: column; gap: 16px;
+}
+.modal-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.modal-email { font-size: 12px; color: var(--muted); margin-top: -10px; }
+.modal-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.modal-plans { display: flex; gap: 10px; }
+.plan-opt {
+  flex: 1; padding: 12px 8px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg); cursor: pointer;
+  text-align: center; transition: border-color 0.15s, background 0.15s;
+}
+.plan-opt:hover { border-color: rgba(200,255,0,0.4); }
+.plan-opt.selected { border-color: var(--accent); background: rgba(200,255,0,0.06); }
+.plan-opt-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.plan-opt-price { font-size: 11px; color: var(--muted); }
+.plan-opt-dur { font-size: 10px; color: var(--accent); margin-top: 3px; }
+.modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-cancel {
+  padding: 8px 16px; background: transparent;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: 13px; color: var(--muted); cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+.modal-confirm {
+  padding: 8px 18px; background: var(--accent);
+  border: none; border-radius: 7px;
+  font-size: 13px; font-weight: 600; color: #0d0e0f;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transform: translateY(8px);
+  transition: all 0.25s; pointer-events: none;
+  z-index: 300;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.ok    { background: #1a3a2a; border: 1px solid rgba(34,197,94,0.4); color: #4ade80; }
+.toast.error { background: #3a1a1a; border: 1px solid rgba(239,68,68,0.4); color: #f87171; }
+
+/* EMPTY */
+.empty-row td { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay show" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Tekshirilmoqda...</div>
+</div>
+
+<header>
+  <div class="logo">MARKETING DASHBOARD <span>ADMIN</span></div>
+  <div class="header-right">
+    <span class="user-name" id="userName"></span>
+    <button class="logout-btn" onclick="handleLogout()">Chiqish</button>
+  </div>
+</header>
+
+<main>
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Jami foydalanuvchilar</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">To'lov qilganlar</div>
+      <div class="stat-value green" id="statPaid">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Muddati o'tganlar</div>
+      <div class="stat-value yellow" id="statExpired">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Faol emas</div>
+      <div class="stat-value" id="statFree">—</div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="toolbar">
+    <div class="toolbar-title">Foydalanuvchilar</div>
+    <input class="search-input" id="searchInput" placeholder="Email yoki ism qidirish..." oninput="filterUsers()">
+  </div>
+
+  <div class="table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Foydalanuvchi</th>
+            <th>Email</th>
+            <th>Holat</th>
+            <th>Reja</th>
+            <th>Muddati</th>
+            <th>Manba</th>
+            <th>Amallar</th>
+          </tr>
+        </thead>
+        <tbody id="usersTableBody">
+          <tr class="empty-row"><td colspan="7">Yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Grant Modal -->
+<div class="modal-overlay" id="grantModal">
+  <div class="modal">
+    <div class="modal-title">Dostup berish</div>
+    <div class="modal-email" id="modalEmail"></div>
+    <div>
+      <div class="modal-label">Tarif tanlang:</div>
+      <div class="modal-plans">
+        <div class="plan-opt selected" id="optMonthly" onclick="selectPlan('monthly')">
+          <div class="plan-opt-name">Oylik</div>
+          <div class="plan-opt-price">200 000 UZS</div>
+          <div class="plan-opt-dur">+1 oy</div>
+        </div>
+        <div class="plan-opt" id="opt3month" onclick="selectPlan('3month')">
+          <div class="plan-opt-name">3 Oylik</div>
+          <div class="plan-opt-price">500 000 UZS</div>
+          <div class="plan-opt-dur">+3 oy</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Bekor</button>
+      <button class="modal-confirm" onclick="confirmGrant()">Tasdiqlash</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/firebase.js"></script>
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app  = initializeApp(window.FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  window.__firebaseApp = app;
+
+  let allUsers = [];
+
+  // ── LOGOUT ──────────────────────────────────────────────────
+  window.handleLogout = async () => {
+    await signOut(auth);
+    window.location.href = "index.html";
+  };
+
+  // ── AUTH + ADMIN GUARD ───────────────────────────────────────
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = "index.html"; return; }
+    document.getElementById("userName").textContent = user.displayName || user.email;
+
+    // Admin tekshiruvi
+    document.getElementById("loadingText").textContent = "Admin huquqlari tekshirilmoqda...";
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists() || !snap.data().isAdmin) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    document.getElementById("loadingText").textContent = "Foydalanuvchilar yuklanmoqda...";
+    await loadUsers();
+    document.getElementById("loadingOverlay").classList.remove("show");
+  });
+
+  // ── LOAD ALL USERS ────────────────────────────────────────────
+  async function loadUsers() {
+    const snap = await getDocs(collection(db, "users"));
+    allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+
+    // Stats
+    const total   = allUsers.length;
+    const paid    = allUsers.filter(u => u.isPaid && !isExpired(u)).length;
+    const expired = allUsers.filter(u => u.isPaid && isExpired(u)).length;
+    const free    = allUsers.filter(u => !u.isPaid).length;
+
+    document.getElementById("statTotal").textContent   = total;
+    document.getElementById("statPaid").textContent    = paid;
+    document.getElementById("statExpired").textContent = expired;
+    document.getElementById("statFree").textContent    = free;
+
+    renderTable(allUsers);
+  }
+
+  function isExpired(u) {
+    if (!u.paidUntil) return false;
+    const exp = u.paidUntil.toDate ? u.paidUntil.toDate() : new Date(u.paidUntil);
+    return exp < new Date();
+  }
+
+  // ── HTML ESCAPE (XSS himoya) ──────────────────────────────────
+  function esc(str) {
+    return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+
+  // ── RENDER TABLE ─────────────────────────────────────────────
+  window.filterUsers = () => {
+    const q = document.getElementById("searchInput").value.toLowerCase();
+    const filtered = q
+      ? allUsers.filter(u => (u.email || "").toLowerCase().includes(q) || (u.name || "").toLowerCase().includes(q))
+      : allUsers;
+    renderTable(filtered);
+  };
+
+  function renderTable(users) {
+    const tbody = document.getElementById("usersTableBody");
+    if (!users.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Foydalanuvchi topilmadi</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = users.map((u, i) => {
+      const expired = isExpired(u);
+      const statusBadge = u.isPaid
+        ? (expired
+            ? `<span class="badge-expired">Muddati o'tgan</span>`
+            : `<span class="badge-paid">Faol</span>`)
+        : `<span class="badge-unpaid">To'lovsiz</span>`;
+
+      const paidUntil = u.paidUntil
+        ? (() => {
+            const d = u.paidUntil.toDate ? u.paidUntil.toDate() : new Date(u.paidUntil);
+            return d.toLocaleDateString("ru", { day: "2-digit", month: "short", year: "numeric" });
+          })()
+        : "—";
+
+      const provider = u.paymentProvider
+        ? `<span class="badge-provider">${esc(u.paymentProvider)}</span>`
+        : "—";
+
+      // Photo URL: only allow https:// to prevent javascript: URLs
+      const safePhoto = (u.photo || "").startsWith("https://") ? u.photo : "";
+      const avatarHtml = safePhoto
+        ? `<img class="avatar-sm" src="${esc(safePhoto)}" referrerpolicy="no-referrer" alt="">`
+        : `<div class="avatar-ph">${esc((u.name || u.email || "?")[0].toUpperCase())}</div>`;
+
+      const canGrant  = !u.isPaid || expired;
+      const canRevoke = u.isPaid && !expired;
+
+      // Use data-index on buttons instead of inline user data to prevent XSS
+      return `<tr data-idx="${i}">
+        <td><div class="avatar-cell">${avatarHtml}<span>${esc(u.name || "—")}</span></div></td>
+        <td style="color:var(--muted)">${esc(u.email || "—")}</td>
+        <td>${statusBadge}</td>
+        <td style="color:var(--muted)">${esc(u.plan || "—")}</td>
+        <td style="color:var(--muted)">${paidUntil}</td>
+        <td>${provider}</td>
+        <td style="display:flex;gap:6px;">
+          <button class="act-btn btn-grant"
+            ${canGrant ? "" : "disabled"}
+            data-action="grant" data-idx="${i}">
+            Dostup berish
+          </button>
+          <button class="act-btn btn-revoke"
+            ${canRevoke ? "" : "disabled"}
+            data-action="revoke" data-idx="${i}">
+            Bekor qilish
+          </button>
+        </td>
+      </tr>`;
+    }).join("");
+
+    // Event delegation — no inline onclick with user data
+    tbody.onclick = (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn || btn.disabled) return;
+      const u = users[+btn.dataset.idx];
+      if (!u) return;
+      if (btn.dataset.action === "grant")  openGrantModal(u.uid, u.email);
+      if (btn.dataset.action === "revoke") revokeAccess(u.uid, u.email);
+    };
+  }
+
+  // ── GRANT MODAL ───────────────────────────────────────────────
+  let _grantUid = null, _grantEmail = null, _grantPlan = "monthly";
+
+  window.openGrantModal = (uid, email) => {
+    _grantUid   = uid;
+    _grantEmail = email;
+    _grantPlan  = "monthly";
+    document.getElementById("modalEmail").textContent = email || uid;
+    selectPlan("monthly");
+    document.getElementById("grantModal").classList.add("show");
+  };
+
+  window.closeModal = () => {
+    document.getElementById("grantModal").classList.remove("show");
+  };
+
+  window.selectPlan = (plan) => {
+    _grantPlan = plan;
+    document.getElementById("optMonthly").classList.toggle("selected", plan === "monthly");
+    document.getElementById("opt3month").classList.toggle("selected", plan === "3month");
+  };
+
+  window.confirmGrant = async () => {
+    if (!_grantUid) return;
+    closeModal();
+    try {
+      const paidUntil = new Date();
+      if (_grantPlan === "3month") {
+        paidUntil.setMonth(paidUntil.getMonth() + 3);
+      } else {
+        paidUntil.setMonth(paidUntil.getMonth() + 1);
+      }
+
+      await setDoc(doc(db, "users", _grantUid), {
+        isPaid:          true,
+        plan:            _grantPlan,
+        paymentProvider: "manual",
+        paidAt:          serverTimestamp(),
+        paidUntil:       paidUntil
+      }, { merge: true });
+
+      const label = _grantPlan === "3month" ? "3 oylik" : "oylik";
+      toast("ok", `✓ ${_grantEmail || _grantUid} ga ${label} dostup berildi`);
+      await loadUsers();
+    } catch (e) {
+      toast("error", "Xato: " + e.message);
+    }
+  };
+
+  // ── REVOKE ACCESS ─────────────────────────────────────────────
+  window.revokeAccess = async (uid, email) => {
+    if (!confirm(`${email || uid} foydalanuvchining dostupini bekor qilasizmi?`)) return;
+    try {
+      await setDoc(doc(db, "users", uid), {
+        isPaid:          false,
+        plan:            null,
+        paymentProvider: null
+      }, { merge: true });
+
+      toast("ok", `✓ ${email || uid} dostup bekor qilindi`);
+      await loadUsers();
+    } catch (e) {
+      toast("error", "Xato: " + e.message);
+    }
+  };
+
+  // ── TOAST ─────────────────────────────────────────────────────
+  function toast(type, msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.className = "toast show " + type;
+    setTimeout(() => { el.className = "toast"; }, 3000);
+  }
+</script>
+</body>
+</html>

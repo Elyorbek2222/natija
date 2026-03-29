@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+<style>
+:root {
+  --bg-deep:    #08090d;
+  --bg-base:    #0d0f14;
+  --bg-card:    #1a1d28;
+  --bg-el:      #14161e;
+  --border:     rgba(255,255,255,0.07);
+  --accent:     #c8ff00;
+  --accent-dim: rgba(200,255,0,0.10);
+  --green:      #22c55e;
+  --blue:       #60a5fa;
+  --yellow:     #f59e0b;
+  --purple:     #a78bfa;
+  --red:        #ef4444;
+  --text:       #f0f2f5;
+  --muted:      rgba(240,242,245,0.45);
+  --sidebar-w:  62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  background:var(--bg-deep);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  display:flex;
+}
+
+/* ── SCROLL PROGRESS ── */
+#scrollBar{
+  position:fixed;top:0;left:var(--sidebar-w);right:0;
+  height:2px;background:linear-gradient(90deg,var(--accent),#60a5fa);
+  width:0%;z-index:500;transition:width 0.1s;
+}
+
+/* ── LOADING ── */
+.loading-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(8,9,13,0.95);
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:16px;z-index:600;
+}
+.loading-overlay.show{display:flex;}
+.spinner{
+  width:40px;height:40px;
+  border:3px solid rgba(255,255,255,0.08);
+  border-top-color:var(--accent);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;color:var(--muted);}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;
+  width:var(--sidebar-w);
+  background:var(--bg-el);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:16px 0;
+  z-index:200;gap:4px;
+}
+.sb-logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;font-weight:800;
+  color:var(--accent);letter-spacing:0.06em;
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  transform:rotate(180deg);
+  margin-bottom:16px;
+  white-space:nowrap;
+}
+.sb-item{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s,color .15s;
+  color:var(--muted);position:relative;
+  text-decoration:none;
+}
+.sb-item:hover{background:rgba(255,255,255,0.06);color:var(--text);}
+.sb-item.active{background:var(--accent-dim);color:var(--accent);}
+.sb-item svg{width:18px;height:18px;stroke-width:1.8;}
+.sb-tooltip{
+  position:absolute;left:calc(100% + 8px);
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:6px;padding:4px 10px;
+  font-size:11px;color:var(--text);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .15s;z-index:300;
+}
+.sb-item:hover .sb-tooltip{opacity:1;}
+.sb-divider{
+  width:28px;height:1px;background:var(--border);margin:6px 0;
+}
+.sb-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:4px;}
+
+/* ── MAIN AREA ── */
+.main-wrap{
+  margin-left:var(--sidebar-w);
+  flex:1;display:flex;flex-direction:column;min-height:100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:58px;
+  background:var(--bg-el);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;position:sticky;top:0;z-index:100;
+  backdrop-filter:blur(12px);
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:18px;font-weight:800;color:var(--text);
+  letter-spacing:0.04em;
+}
+.period-pill{
+  font-size:11px;color:var(--muted);
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  border-radius:20px;padding:3px 10px;
+}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 13px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  font-family:'Inter',sans-serif;text-decoration:none;
+  transition:opacity .15s;border:none;
+}
+.tb-btn.primary{background:var(--accent);color:#08090d;}
+.tb-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.tb-btn.ghost:hover{border-color:var(--red);color:var(--red);}
+.tb-btn.primary:hover{opacity:.88;}
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+  padding:4px 10px 4px 4px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);border-radius:20px;
+}
+.u-avatar{
+  width:28px;height:28px;border-radius:50%;
+  object-fit:cover;border:1.5px solid var(--border);
+}
+.u-ph{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--accent-dim);
+  border:1.5px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:var(--accent);
+}
+.u-name{font-size:12px;color:var(--text);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── PAGE ── */
+.page{max-width:1360px;margin:0 auto;padding:28px 24px 80px;}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:100px 24px;text-align:center;gap:18px;
+}
+.empty-icon{font-size:52px;opacity:.35;}
+.empty-title{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:30px;font-weight:700;color:var(--text);
+}
+.empty-sub{font-size:14px;color:var(--muted);max-width:320px;line-height:1.65;}
+.empty-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 24px;background:var(--accent);color:#08090d;
+  border:none;border-radius:10px;font-size:14px;font-weight:600;
+  cursor:pointer;text-decoration:none;margin-top:6px;
+  font-family:'Inter',sans-serif;transition:opacity .15s;
+}
+.empty-cta:hover{opacity:.88;}
+#dashContent{display:none;}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:16px;margin-top:32px;
+}
+.sec-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:600;color:var(--text);}
+.sec-sub{font-size:12px;color:var(--muted);}
+
+/* ── KPI GRID ── */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:4px;
+}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr;}}
+
+.kpi-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;padding:18px 18px 14px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+  cursor:default;
+}
+.kpi-card:hover{
+  border-color:color-mix(in srgb,var(--kc,var(--accent)) 40%,transparent);
+  box-shadow:0 0 22px color-mix(in srgb,var(--kc,var(--accent)) 12%,transparent);
+}
+.kpi-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--kc,var(--accent));
+}
+.kpi-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted);margin-bottom:10px;
+}
+.kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;}
+.kpi-value{
+  font-family:'JetBrains Mono',monospace;
+  font-size:28px;font-weight:700;
+  color:var(--text);line-height:1;
+}
+.kpi-spark{flex-shrink:0;}
+.kpi-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;
+}
+.kpi-sub{font-size:11px;color:var(--muted);}
+.kpi-trend{
+  font-size:11px;font-weight:600;
+  display:inline-flex;align-items:center;gap:2px;
+  padding:2px 7px;border-radius:4px;
+}
+.kpi-trend.up  {background:rgba(34,197,94,.12);color:#22c55e;}
+.kpi-trend.down{background:rgba(239,68,68,.10);color:#ef4444;}
+.kpi-trend.neu {background:rgba(255,255,255,.05);color:var(--muted);}
+
+/* ── CHART CARDS ── */
+.chart-grid{
+  display:grid;gap:16px;margin-bottom:4px;
+}
+.chart-grid.cols2{grid-template-columns:1fr 1fr;}
+.chart-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:860px){.chart-grid.cols2,.chart-grid.cols3{grid-template-columns:1fr;}}
+
+.chart-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:14px;padding:20px 20px 12px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.chart-card:hover{
+  border-color:rgba(200,255,0,0.15);
+  box-shadow:0 0 28px rgba(200,255,0,0.05);
+}
+.cc-title{
+  font-size:12px;font-weight:600;color:var(--text);
+  margin-bottom:16px;display:flex;align-items:center;gap:7px;
+}
+.cc-dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── FUNNEL STEPS ── */
+.funnel-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:14px;padding:20px 22px;
+}
+.funnel-steps{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;}
+.funnel-step{
+  flex:1;min-width:120px;
+  background:var(--bg-el);border:1px solid var(--border);
+  border-radius:10px;padding:14px 12px;position:relative;
+  transition:border-color .2s;
+}
+.funnel-step:hover{border-color:rgba(200,255,0,.25);}
+.f-arr{font-size:16px;color:var(--border);padding:0 6px;align-self:center;flex-shrink:0;}
+.f-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
+.f-val{
+  font-family:'JetBrains Mono',monospace;
+  font-size:20px;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px;
+}
+.f-sub{font-size:10px;color:var(--muted);}
+.f-pct{
+  font-size:10px;font-weight:700;margin-top:6px;
+  padding:1px 6px;border-radius:3px;display:inline-block;
+}
+.f-bar{position:absolute;bottom:0;left:0;height:2px;border-radius:0 0 10px 10px;transition:width .8s ease;}
+
+/* ── CHANNEL COMPARE ── */
+.ch-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);}
+.ch-row:last-child{border-bottom:none;}
+.ch-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ch-name{font-size:12px;font-weight:600;color:var(--text);width:90px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ch-bar-bg{flex:1;height:7px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.ch-bar-fill{height:100%;border-radius:4px;transition:width .7s ease;}
+.ch-cpl{font-size:12px;font-weight:700;width:54px;text-align:right;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.ch-best{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(200,255,0,.1);color:var(--accent);border:1px solid rgba(200,255,0,.2);flex-shrink:0;}
+.ch-empty{font-size:12px;color:var(--muted);padding:18px 0;text-align:center;}
+
+/* ── TABLE ── */
+.tbl-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+}
+.tbl-hdr{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.tbl-title{font-size:13px;font-weight:600;color:var(--text);}
+.tbl-cnt{
+  font-size:11px;color:var(--muted);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:20px;padding:2px 10px;
+}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{
+  padding:9px 14px;text-align:left;
+  font-size:10px;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted);background:var(--bg-el);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.035);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.03);}
+tbody td{padding:10px 14px;font-size:12px;color:var(--text);white-space:nowrap;}
+tbody td:first-child{font-weight:500;}
+.num{font-family:'JetBrains Mono',monospace;font-size:12px;}
+.bdg{
+  display:inline-block;padding:2px 8px;border-radius:4px;
+  font-size:10px;font-weight:600;
+  background:rgba(200,255,0,.08);color:var(--accent);border:1px solid rgba(200,255,0,.18);
+}
+.bdg.cpr{background:rgba(34,197,94,.08);color:#22c55e;border-color:rgba(34,197,94,.18);}
+.rt-bdg{
+  display:inline-block;padding:2px 6px;border-radius:4px;
+  font-size:9px;background:rgba(255,255,255,.05);color:var(--muted);
+}
+.hbdg{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;
+}
+.hbdg.good{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2);}
+.hbdg.warn{background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2);}
+.hbdg.bad {background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);}
+
+/* ── REPORT FILTER BAR ── */
+.filter-bar{
+  background:var(--bg-el);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;gap:8px;
+  overflow-x:auto;min-height:40px;
+  scrollbar-width:none;
+}
+.filter-bar::-webkit-scrollbar{display:none;}
+.filter-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;margin-right:4px;}
+.rpt-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  white-space:nowrap;flex-shrink:0;
+  transition:all .15s;font-family:'Inter',sans-serif;
+}
+.rpt-pill:hover{border-color:rgba(200,255,0,.3);color:var(--text);}
+.rpt-pill.active{
+  background:var(--accent-dim);
+  border-color:rgba(200,255,0,.4);
+  color:var(--accent);
+}
+.rpt-pill .rp-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:currentColor;flex-shrink:0;
+}
+#filterBar{display:none;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main-wrap{margin-left:0;}
+  #scrollBar{left:0;}
+}
+</style>
+</head>
+<body>
+
+<!-- Scroll progress -->
+<div id="scrollBar"></div>
+
+<!-- Loading -->
+<div class="loading-overlay show" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Yuklanmoqda...</div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sb-logo">MD</div>
+
+  <a class="sb-item active" href="dashboard.html" id="sb-dash">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <div class="sb-tooltip">Dashboard</div>
+  </a>
+
+  <a class="sb-item" href="upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="sb-tooltip">Yuklash</div>
+  </a>
+
+  <div class="sb-divider"></div>
+
+  <a class="sb-item" href="admin.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <div class="sb-tooltip">Admin</div>
+  </a>
+
+  <div class="sb-bottom">
+    <div class="sb-item" id="sbLogout" style="cursor:pointer;" onclick="handleLogout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <div class="sb-tooltip">Chiqish</div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main wrapper -->
+<div class="main-wrap">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Marketing Dashboard</div>
+      <div class="period-pill" id="periodPill">—</div>
+    </div>
+    <div class="topbar-right">
+      <a href="upload.html" class="tb-btn primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Yuklash
+      </a>
+      <div class="user-chip">
+        <div id="userAvatarWrap"></div>
+        <span class="u-name" id="userName">...</span>
+      </div>
+      <button class="tb-btn ghost" onclick="handleLogout()">Chiqish</button>
+    </div>
+  </header>
+
+  <!-- Report filter bar -->
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-lbl">Hisobot:</div>
+    <div id="filterPills" style="display:flex;gap:6px;align-items:center;"></div>
+  </div>
+
+  <!-- Page -->
+  <div class="page">
+
+    <!-- Empty -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">Hali ma'lumot yo'q</div>
+      <div class="empty-sub">Dashboardni ko'rish uchun reklama platformasi Excel otchotingizni yuklang</div>
+      <a href="upload.html" class="empty-cta">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Excel yuklash
+      </a>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashContent">
+
+      <!-- KPI 8 ta -->
+      <div class="sec-hdr" style="margin-top:0;">
+        <div class="sec-dot" style="background:var(--accent)"></div>
+        <div class="sec-title">Asosiy ko'rsatkichlar</div>
+        <div class="sec-sub" id="reportDate"></div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--kc:#c8ff00">
+          <div class="kpi-label">Umumiy xarajat</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiSpend">$0</div>
+            <div class="kpi-spark" id="spk0"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub" id="kpiSpendSub">—</div>
+            <div class="kpi-trend neu" id="trd0">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#22c55e">
+          <div class="kpi-label">Natijalar</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiResults">0</div>
+            <div class="kpi-spark" id="spk1"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub" id="kpiResultsSub">—</div>
+            <div class="kpi-trend neu" id="trd1">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#60a5fa">
+          <div class="kpi-label">O'rtacha CPL</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiCpl">$0</div>
+            <div class="kpi-spark" id="spk2"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub">natija narxi</div>
+            <div class="kpi-trend neu" id="trd2">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#f59e0b">
+          <div class="kpi-label">Impressions</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiImpr">0</div>
+            <div class="kpi-spark" id="spk3"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub">ko'rsatilishlar</div>
+            <div class="kpi-trend neu" id="trd3">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#a78bfa">
+          <div class="kpi-label">CPM</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiCpm">$0</div>
+            <div class="kpi-spark" id="spk4"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub">1000 ko'rsatish narxi</div>
+            <div class="kpi-trend neu" id="trd4">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#06b6d4">
+          <div class="kpi-label">Reach</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiReach">0</div>
+            <div class="kpi-spark" id="spk5"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub">noyob foydalanuvchi</div>
+            <div class="kpi-trend neu" id="trd5">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#f97316">
+          <div class="kpi-label">Eng yaxshi CPL</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiBestCpl">$0</div>
+            <div class="kpi-spark" id="spk6"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub" id="kpiBestCplName">—</div>
+            <div class="kpi-trend good" id="trd6">✓ Top</div>
+          </div>
+        </div>
+        <div class="kpi-card" style="--kc:#ec4899">
+          <div class="kpi-label">Konversiya</div>
+          <div class="kpi-row">
+            <div class="kpi-value" id="kpiCr">0%</div>
+            <div class="kpi-spark" id="spk7"></div>
+          </div>
+          <div class="kpi-footer">
+            <div class="kpi-sub">reach → natija</div>
+            <div class="kpi-trend neu" id="trd7">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Funnel -->
+      <div class="sec-hdr">
+        <div class="sec-dot" style="background:#60a5fa"></div>
+        <div class="sec-title">Funnel — CPM → Impressions → Reach → Natijalar → CPL</div>
+      </div>
+      <div class="funnel-card">
+        <div class="funnel-steps" id="funnelSteps"></div>
+      </div>
+
+      <!-- Charts row 1: Spend + CPL -->
+      <div class="sec-hdr">
+        <div class="sec-dot" style="background:var(--accent)"></div>
+        <div class="sec-title">Kampaniyalar bo'yicha tahlil</div>
+      </div>
+      <div class="chart-grid cols2">
+        <div class="chart-card">
+          <div class="cc-title"><div class="cc-dot" style="background:var(--accent)"></div>Xarajat (USD)</div>
+          <div id="chartSpend"></div>
+        </div>
+        <div class="chart-card">
+          <div class="cc-title"><div class="cc-dot" style="background:#22c55e"></div>CPL — natija narxi ($)</div>
+          <div id="chartCpl"></div>
+        </div>
+      </div>
+
+      <!-- Scatter: CPM vs CPL -->
+      <div class="chart-grid cols2" style="margin-top:16px;">
+        <div class="chart-card">
+          <div class="cc-title"><div class="cc-dot" style="background:#a78bfa"></div>CPM vs CPL — samaradorlik matritsasi</div>
+          <div id="chartScatter"></div>
+        </div>
+        <!-- Kanal taqqoslash -->
+        <div class="chart-card">
+          <div class="cc-title"><div class="cc-dot" style="background:#f97316"></div>Kanal taqqoslash — eng arzon natija</div>
+          <div id="channelCompare"><div class="ch-empty">Bir necha kanal faylini yuklang</div></div>
+        </div>
+      </div>
+
+      <!-- Campaign table -->
+      <div class="sec-hdr">
+        <div class="sec-dot" style="background:#f59e0b"></div>
+        <div class="sec-title">Kampaniyalar jadvali</div>
+      </div>
+      <div class="tbl-card">
+        <div class="tbl-hdr">
+          <div class="tbl-title">Barcha kampaniyalar</div>
+          <div class="tbl-cnt" id="campCount">0 ta</div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kampaniya</th>
+                <th>Natija turi</th>
+                <th>Holat</th>
+                <th>Xarajat</th>
+                <th>Natijalar</th>
+                <th>CPL</th>
+                <th>CPM</th>
+                <th>Impressions</th>
+                <th>Reach</th>
+              </tr>
+            </thead>
+            <tbody id="campTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /dashContent -->
+  </div><!-- /page -->
+</div><!-- /main-wrap -->
+
+<script src="assets/firebase.js"></script>
+<script type="module">
+import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, query, orderBy, getDocs }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const app  = initializeApp(window.FIREBASE_CONFIG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+window.__firebaseApp = app;
+
+// ── SCROLL PROGRESS ─────────────────────────────────────────
+window.addEventListener("scroll", () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById("scrollBar").style.width = Math.min(pct, 100) + "%";
+});
+
+// ── LOGOUT ───────────────────────────────────────────────────
+window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
+
+// ── ACCESS CHECK ─────────────────────────────────────────────
+async function checkAccess(uid) {
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) return false;
+  const d = snap.data();
+  if (!d.isPaid) return false;
+  if (d.paidUntil) {
+    const exp = d.paidUntil.toDate ? d.paidUntil.toDate() : new Date(d.paidUntil);
+    if (exp < new Date()) return false;
+  }
+  return true;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = "index.html"; return; }
+  const ok = await checkAccess(user.uid);
+  if (!ok) { window.location.href = "paywall.html"; return; }
+
+  setInterval(async () => {
+    if (!await checkAccess(user.uid)) window.location.href = "paywall.html";
+  }, 60000);
+
+  // Avatar
+  const wrap = document.getElementById("userAvatarWrap");
+  const ph = document.createElement("div"); ph.className = "u-ph";
+  ph.textContent = (user.displayName || user.email || "U")[0].toUpperCase();
+  wrap.appendChild(ph);
+  if (user.photoURL) {
+    const img = document.createElement("img"); img.className = "u-avatar";
+    img.referrerPolicy = "no-referrer"; img.src = user.photoURL;
+    img.onload = () => ph.remove(); img.onerror = () => img.remove();
+    wrap.appendChild(img);
+  }
+  document.getElementById("userName").textContent = user.displayName || user.email || "";
+
+  // Load data
+  document.getElementById("loadingText").textContent = "Ma'lumotlar yuklanmoqda...";
+  try {
+    const reports = await loadAll(user.uid);
+    if (!reports.length) {
+      try { renderDashboard(await (await fetch("data/marketing.json")).json()); }
+      catch { showEmpty(); }
+    } else {
+      buildFilterPills(reports);
+      renderDashboard(reports[0]);
+    }
+  } catch(e) {
+    console.error(e);
+    try { renderDashboard(await (await fetch("data/marketing.json")).json()); }
+    catch { showEmpty(); }
+  }
+  document.getElementById("loadingOverlay").classList.remove("show");
+});
+
+async function loadAll(uid) {
+  const q = query(collection(db,"users",uid,"reports"), orderBy("uploadedAt","desc"));
+  const snap = await getDocs(q);
+  return snap.docs.map(d=>({ id:d.id, ...d.data() }));
+}
+
+function buildFilterPills(reports) {
+  window._allReports = reports;
+  if (reports.length < 2) return; // no need for filter with 1 report
+  const bar   = document.getElementById("filterBar");
+  const pills = document.getElementById("filterPills");
+  bar.style.display = "flex";
+  pills.innerHTML = reports.map((r,i)=>{
+    const platform = r.meta?.platform || r.sourceFile || "Hisobot";
+    const uploaded = r.meta?.uploaded || (r.uploadedAt?.seconds ? new Date(r.uploadedAt.seconds*1000) : null);
+    const dateStr  = uploaded ? new Date(uploaded).toLocaleDateString("ru",{day:"2-digit",month:"short"}) : "";
+    const label    = platform + (dateStr ? " · "+dateStr : "");
+    return `<button class="rpt-pill${i===0?' active':''}" onclick="selectReport(${i})" id="rp${i}">
+      <div class="rp-dot"></div>${label}
+    </button>`;
+  }).join("");
+  // Pre-populate channel compare with all reports
+  const COLS = ["#c8ff00","#60a5fa","#f59e0b","#a78bfa","#22c55e","#f87171","#06b6d4"];
+  reports.forEach((r,i)=>{
+    const label = (r.meta?.platform || r.sourceFile || "Kanal "+i).slice(0,22);
+    const cps   = r.campaigns || [];
+    const sp    = cps.reduce((s,c)=>s+(c.metrics?.spent_usd||0),0);
+    const rs    = cps.reduce((s,c)=>s+(c.metrics?.results||0),0);
+    if (!_ch[label]) _ch[label] = { cpl:rs>0?sp/rs:0, spend:sp, res:rs, color:COLS[Object.keys(_ch).length%COLS.length] };
+  });
+}
+
+window.selectReport = function(idx) {
+  document.querySelectorAll(".rpt-pill").forEach((p,i)=>p.classList.toggle("active",i===idx));
+  // Rebuild channel compare with all reports up to selected
+  Object.keys(_ch).forEach(k=>delete _ch[k]);
+  // Re-accumulate channels from all reports, newest last
+  const all = window._allReports || [];
+  all.forEach((r,i)=>{
+    if (i > idx) return;
+    const label = (r.meta?.platform || r.sourceFile || "Kanal "+i).slice(0,22);
+    const cps = r.campaigns || [];
+    const sp  = cps.reduce((s,c)=>s+(c.metrics?.spent_usd||0),0);
+    const rs  = cps.reduce((s,c)=>s+(c.metrics?.results||0),0);
+    const COLS = ["#c8ff00","#60a5fa","#f59e0b","#a78bfa","#22c55e","#f87171","#06b6d4"];
+    if (!_ch[label]) _ch[label] = { cpl: rs>0?sp/rs:0, spend:sp, res:rs, color:COLS[Object.keys(_ch).length%COLS.length] };
+  });
+  renderDashboard(window._allReports[idx]);
+};
+
+function showEmpty() {
+  document.getElementById("emptyState").style.display = "flex";
+  document.getElementById("dashContent").style.display = "none";
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderDashboard(data) {
+  document.getElementById("dashContent").style.display = "block";
+  document.getElementById("emptyState").style.display  = "none";
+
+  const { meta, campaigns=[], totals={} } = data;
+
+  // Period
+  if (meta) {
+    const s = meta.period_start||"", e = meta.period_end||"";
+    document.getElementById("periodPill").textContent = (s&&e) ? `${s} — ${e}` : (meta.period||"—");
+    if (meta.uploaded||meta.uploadedAt) {
+      const d = new Date(meta.uploaded||(meta.uploadedAt?.seconds?meta.uploadedAt.seconds*1000:meta.uploadedAt));
+      document.getElementById("reportDate").textContent =
+        "Yuklangan: "+d.toLocaleDateString("ru",{day:"2-digit",month:"short",year:"numeric"});
+    }
+  }
+
+  const spend  = totals.spent_usd  || campaigns.reduce((s,c)=>s+(c.metrics?.spent_usd||0),0);
+  const results= totals.results    || campaigns.reduce((s,c)=>s+(c.metrics?.results||0),0);
+  const impr   = totals.impressions|| campaigns.reduce((s,c)=>s+(c.metrics?.impressions||0),0);
+  const reach  = campaigns.reduce((s,c)=>s+(c.metrics?.reach||0),0);
+  const cpl    = results>0 ? spend/results : 0;
+  const cpm    = impr>0   ? spend/impr*1000: 0;
+  const cr     = reach>0  ? results/reach*100 : 0;
+
+  // Best CPL campaign
+  const sorted = [...campaigns].filter(c=>c.metrics?.results>0)
+    .sort((a,b)=>(a.metrics.cost_per_result_usd||999)-(b.metrics.cost_per_result_usd||999));
+  const bestCamp = sorted[0];
+  const bestCpl  = bestCamp?.metrics?.cost_per_result_usd || 0;
+
+  // KPIs
+  setText("kpiSpend",   "$"+fmt(spend));
+  setText("kpiResults",  fmtN(results));
+  setText("kpiCpl",     "$"+fmt(cpl));
+  setText("kpiImpr",     fmtN(impr));
+  setText("kpiCpm",     "$"+fmt(cpm));
+  setText("kpiReach",    fmtN(reach));
+  setText("kpiBestCpl", "$"+fmt(bestCpl));
+  setText("kpiCr",       fmt(cr)+"%");
+  setText("kpiSpendSub", campaigns.length+" ta kampaniya");
+  setText("kpiResultsSub", campaigns[0]?.result_types?.[0]||"jami");
+  setText("kpiBestCplName", shortName(bestCamp?.name||"—").slice(0,18));
+
+  // Trends (compare top vs bottom half CPL)
+  setTrend("trd0", spend,   0);
+  setTrend("trd1", results, 0, true);
+  setTrend("trd2", cpl,     0, false); // CPL low = good
+  setTrend("trd3", impr,    0, true);
+  setTrend("trd4", cpm,     0, false);
+  setTrend("trd5", reach,   0, true);
+
+  // Sparklines (CPL per campaign as trend)
+  const cplData = campaigns.map(c=>c.metrics?.cost_per_result_usd||0);
+  const spendData = campaigns.map(c=>c.metrics?.spent_usd||0);
+  const resData   = campaigns.map(c=>c.metrics?.results||0);
+  const imprData  = campaigns.map(c=>c.metrics?.impressions||0);
+  const reachData = campaigns.map(c=>c.metrics?.reach||0);
+  const cpmData   = campaigns.map(c=>c.metrics?.cpm_usd||0);
+
+  sparkline("spk0", spendData, "#c8ff00");
+  sparkline("spk1", resData,   "#22c55e");
+  sparkline("spk2", cplData,   "#60a5fa");
+  sparkline("spk3", imprData,  "#f59e0b");
+  sparkline("spk4", cpmData,   "#a78bfa");
+  sparkline("spk5", reachData, "#06b6d4");
+  sparkline("spk6", cplData.filter(v=>v>0).sort((a,b)=>a-b), "#f97316");
+  sparkline("spk7", campaigns.map(c=>{
+    const r=c.metrics?.reach||0, res=c.metrics?.results||0;
+    return r>0?res/r*100:0;
+  }), "#ec4899");
+
+  buildFunnel(spend, impr, reach, results, cpl, cpm);
+  buildCharts(campaigns);
+  buildScatter(campaigns);
+  const chLabel = (meta?.platform || data.sourceFile || "Kanal").slice(0,22);
+  buildChannelCompare(campaigns, chLabel);
+  buildTable(campaigns);
+}
+
+// ── FUNNEL ────────────────────────────────────────────────────
+function buildFunnel(spend, impr, reach, results, cpl, cpm) {
+  const base = impr || 1;
+  const steps = [
+    { lbl:"CPM",         val:"$"+fmt(cpm),  sub:"1000 ko'rsatish", color:"#60a5fa", pct:100 },
+    { lbl:"Impressions", val:fmtN(impr),     sub:"Ko'rsatishlar",   color:"#818cf8", pct:100 },
+    { lbl:"Reach",       val:fmtN(reach),    sub:"Noyob users",     color:"#a78bfa", pct:Math.round(reach/base*100) },
+    { lbl:"Natijalar",   val:fmtN(results),  sub:"Konversiya",      color:"#22c55e", pct:Math.round(results/base*100) },
+    { lbl:"CPL",         val:"$"+fmt(cpl),   sub:"Natija narxi",    color:"#c8ff00", pct:100 },
+  ];
+  const base2 = steps[1].pct;
+  document.getElementById("funnelSteps").innerHTML = steps.map((s,i)=>`
+    ${i>0?'<div class="f-arr">→</div>':''}
+    <div class="funnel-step">
+      <div class="f-lbl">${s.lbl}</div>
+      <div class="f-val">${s.val}</div>
+      <div class="f-sub">${s.sub}</div>
+      ${i>0&&i<4?`<div class="f-pct" style="background:${s.color}22;color:${s.color}">${s.pct}%</div>`:''}
+      <div class="f-bar" style="background:${s.color};width:${s.pct}%"></div>
+    </div>
+  `).join("");
+}
+
+// ── APEX CHARTS ───────────────────────────────────────────────
+const APEX_BASE = {
+  chart:{ background:"transparent", toolbar:{show:false}, fontFamily:"Inter, sans-serif" },
+  theme:{ mode:"dark" },
+  grid:{ borderColor:"rgba(255,255,255,0.06)", strokeDashArray:3 },
+  tooltip:{
+    theme:"dark",
+    style:{fontSize:"12px"},
+    y:{ formatter: v=>"$"+fmt(v) }
+  },
+  dataLabels:{enabled:false},
+  legend:{show:false},
+};
+
+let _charts = {};
+function destroyChart(id) {
+  if (_charts[id]) { _charts[id].destroy(); delete _charts[id]; }
+}
+
+function buildCharts(campaigns) {
+  const labels = campaigns.map(c=>shortName(c.name));
+  const spendD = campaigns.map(c=>+(c.metrics?.spent_usd||0).toFixed(2));
+  const cplD   = campaigns.map(c=>+(c.metrics?.cost_per_result_usd||0).toFixed(2));
+
+  destroyChart("spend"); destroyChart("cpl");
+
+  _charts.spend = new ApexCharts(document.getElementById("chartSpend"), {
+    ...APEX_BASE,
+    chart:{...APEX_BASE.chart, type:"bar", height:240},
+    series:[{name:"Xarajat ($)", data:spendD}],
+    xaxis:{categories:labels, labels:{style:{colors:"#6b7280",fontSize:"10px"}, maxHeight:60, trim:true}},
+    yaxis:{labels:{style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+fmtS(v)}},
+    colors:["#c8ff00"],
+    plotOptions:{bar:{borderRadius:5, columnWidth:"55%"}},
+    tooltip:{y:{formatter:v=>"$"+fmt(v)}},
+  });
+  _charts.spend.render();
+
+  _charts.cpl = new ApexCharts(document.getElementById("chartCpl"), {
+    ...APEX_BASE,
+    chart:{...APEX_BASE.chart, type:"bar", height:240},
+    series:[{name:"CPL ($)", data:cplD}],
+    xaxis:{categories:labels, labels:{style:{colors:"#6b7280",fontSize:"10px"}, maxHeight:60, trim:true}},
+    yaxis:{labels:{style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+fmtS(v)}},
+    colors:["#22c55e"],
+    plotOptions:{bar:{borderRadius:5, columnWidth:"55%"}},
+    tooltip:{y:{formatter:v=>"$"+fmt(v)}},
+  });
+  _charts.cpl.render();
+}
+
+function buildScatter(campaigns) {
+  destroyChart("scatter");
+  const pts = campaigns.filter(c=>c.metrics?.cpm_usd>0&&c.metrics?.cost_per_result_usd>0).map(c=>({
+    x:+c.metrics.cpm_usd.toFixed(2),
+    y:+c.metrics.cost_per_result_usd.toFixed(2),
+    name:shortName(c.name)
+  }));
+  if (!pts.length) { document.getElementById("chartScatter").innerHTML='<div class="ch-empty">CPM/CPL ma\'lumot yo\'q</div>'; return; }
+
+  const maxX = Math.max(...pts.map(p=>p.x))*1.3;
+  const maxY = Math.max(...pts.map(p=>p.y))*1.3;
+
+  _charts.scatter = new ApexCharts(document.getElementById("chartScatter"), {
+    ...APEX_BASE,
+    chart:{...APEX_BASE.chart, type:"scatter", height:240},
+    series:[{name:"Kampaniya", data:pts.map(p=>({x:p.x,y:p.y}))}],
+    xaxis:{
+      title:{text:"CPM ($)",style:{color:"#6b7280",fontSize:"10px"}},
+      labels:{style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+fmtS(v)},
+      min:0, max:maxX,
+    },
+    yaxis:{
+      title:{text:"CPL ($)",style:{color:"#6b7280",fontSize:"10px"}},
+      labels:{style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+fmtS(v)},
+      min:0, max:maxY,
+    },
+    colors:["#a78bfa"],
+    markers:{size:8},
+    tooltip:{
+      custom:({dataPointIndex})=>`
+        <div style="padding:8px 12px;background:#1a1d28;border:1px solid rgba(255,255,255,.1);border-radius:6px;font-size:11px">
+          <b>${pts[dataPointIndex]?.name||""}</b><br>
+          CPM: $${fmt(pts[dataPointIndex]?.x||0)}<br>
+          CPL: $${fmt(pts[dataPointIndex]?.y||0)}
+        </div>`
+    }
+  });
+  _charts.scatter.render();
+}
+
+// ── CHANNEL COMPARE ───────────────────────────────────────────
+const _ch = {};
+function buildChannelCompare(campaigns, chName) {
+  const spend  = campaigns.reduce((s,c)=>s+(c.metrics?.spent_usd||0),0);
+  const res    = campaigns.reduce((s,c)=>s+(c.metrics?.results||0),0);
+  const cpl    = res>0 ? spend/res : 0;
+  const COLS   = ["#c8ff00","#60a5fa","#f59e0b","#a78bfa","#22c55e","#f87171","#06b6d4"];
+  const key    = chName.slice(0,22);
+  if (!_ch[key]) _ch[key] = { cpl, spend, res, color:COLS[Object.keys(_ch).length%COLS.length] };
+
+  const entries = Object.entries(_ch);
+  const wrap    = document.getElementById("channelCompare");
+  if (entries.length<2) {
+    wrap.innerHTML=`<div class="ch-empty">Taqqoslash uchun bir necha kanal faylini yuklang (${entries.length}/2+)</div>`;
+    return;
+  }
+  const maxCpl = Math.max(...entries.map(([,v])=>v.cpl))||1;
+  const bestKey= entries.reduce((a,b)=>a[1].cpl<b[1].cpl?a:b)[0];
+  wrap.innerHTML = entries.map(([name,d])=>`
+    <div class="ch-row">
+      <div class="ch-dot" style="background:${d.color}"></div>
+      <div class="ch-name">${name}</div>
+      <div class="ch-bar-bg"><div class="ch-bar-fill" style="background:${d.color};width:${d.cpl/maxCpl*100}%"></div></div>
+      <div class="ch-cpl" style="color:${d.color}">$${fmt(d.cpl)}</div>
+      ${name===bestKey?'<div class="ch-best">Eng arzon ✓</div>':'<div style="width:72px"></div>'}
+    </div>
+  `).join("");
+}
+
+// ── TABLE ──────────────────────────────────────────────────────
+function buildTable(campaigns) {
+  setText("campCount", campaigns.length+" ta");
+  const tbody = document.getElementById("campTableBody");
+  tbody.innerHTML = campaigns.map(c=>{
+    const m = c.metrics||{};
+    const h = health(m);
+    const rts = (c.result_types||[]).map(r=>`<span class="rt-bdg">${r}</span>`).join(" ");
+    return `<tr>
+      <td>${shortName(c.name)}</td>
+      <td>${rts||"—"}</td>
+      <td><span class="hbdg ${h.cls}">● ${h.lbl}</span></td>
+      <td class="num"><span class="bdg">$${fmt(m.spent_usd||0)}</span></td>
+      <td class="num">${fmtN(m.results||0)}</td>
+      <td class="num"><span class="bdg cpr">$${fmt(m.cost_per_result_usd||0)}</span></td>
+      <td class="num">$${fmt(m.cpm_usd||0)}</td>
+      <td class="num">${fmtN(m.impressions||0)}</td>
+      <td class="num">${fmtN(m.reach||0)}</td>
+    </tr>`;
+  }).join("");
+}
+
+// ── SPARKLINES ────────────────────────────────────────────────
+function sparkline(id, data, color) {
+  const el = document.getElementById(id);
+  if (!el||!data.length) return;
+  el.innerHTML = "";
+  new ApexCharts(el, {
+    chart:{ type:"area", height:38, width:80, sparkline:{enabled:true}, background:"transparent" },
+    series:[{data}],
+    colors:[color],
+    stroke:{width:1.5, curve:"smooth"},
+    fill:{type:"gradient", gradient:{shadeIntensity:1, opacityFrom:0.35, opacityTo:0, stops:[0,100]}},
+    tooltip:{enabled:false},
+    theme:{mode:"dark"},
+  }).render();
+}
+
+// ── HEALTH ────────────────────────────────────────────────────
+function health(m) {
+  const cpm = m.cpm_usd||0, res = m.results||0, imp = m.impressions||1;
+  const rpi = res/imp*1000;
+  if (cpm>5&&rpi<0.3) return {cls:"bad",  lbl:"Charchagan"};
+  if (cpm>3||rpi<0.5) return {cls:"warn", lbl:"Kuzatish"};
+  return                     {cls:"good", lbl:"Yaxshi"};
+}
+
+// ── TREND BADGE ───────────────────────────────────────────────
+function setTrend(id, val, prev, higherGood=true) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!prev) { el.className="kpi-trend neu"; el.textContent="—"; return; }
+  const diff = ((val-prev)/prev*100).toFixed(1);
+  const up   = val>prev;
+  const good = higherGood ? up : !up;
+  el.className = "kpi-trend "+(good?"up":"down");
+  el.textContent = (up?"↑":"↓")+" "+Math.abs(diff)+"%";
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function fmt(n)   { return (+n).toFixed(2); }
+function fmtN(n)  { return (+n).toLocaleString("ru"); }
+function fmtS(n)  { return n>=1000?(n/1000).toFixed(0)+"k":n.toFixed(0); }
+function setText(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
+function shortName(name){ return (name||"").replace(/^[A-Z]{1,4}\s*\|\s*/i,"").trim().slice(0,24); }
+</script>
+</body>
+</html>

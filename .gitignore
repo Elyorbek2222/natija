@@ -1,0 +1,32 @@
+# ── SECRETS ────────────────────────────────────────────────────
+# MCP server config (contains API keys!)
+.mcp.json
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# ── REAL DATA (client / business data — never commit) ──────────
+data/*.xlsx
+data/*.xls
+data/marketing.json
+
+# Keep test CSVs (no sensitive info)
+!data/test-reports/
+
+# ── CLAUDE / AGENT INTERNAL ────────────────────────────────────
+.claude/
+.agent/
+
+# ── OS / EDITOR ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+*.swp
+*.swo
+
+# ── NODE (if added later) ───────────────────────────────────────
+node_modules/
+dist/
+.cache/

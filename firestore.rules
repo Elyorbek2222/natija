@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── HELPER: admin tekshiruvi ──────────────────────────────
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.get('isAdmin', false) == true;
+    }
+
+    // ── USERS ─────────────────────────────────────────────────
+    match /users/{uid} {
+
+      // O'qish: faqat o'zi yoki admin
+      allow read: if request.auth != null &&
+        (request.auth.uid == uid || isAdmin());
+
+      // Yangi hujjat yaratish: faqat o'zi, lekin to'lov maydonlari kiritilmasin
+      allow create: if request.auth != null &&
+        request.auth.uid == uid &&
+        !request.resource.data.keys().hasAny([
+          'isPaid', 'isAdmin', 'paidUntil', 'plan',
+          'paymentProvider', 'paidAt', 'paymentId', 'driveFileIds'
+        ]);
+
+      // Yangilash: faqat xavfsiz profil maydonlari (name, email, photo, lastSeen)
+      allow update: if request.auth != null &&
+        request.auth.uid == uid &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'isPaid', 'isAdmin', 'paidUntil', 'plan',
+          'paymentProvider', 'paidAt', 'paymentId', 'driveFileIds'
+        ]);
+
+      // Admin barcha maydonlarni yoza oladi (isPaid berish/olish)
+      allow write: if isAdmin();
+
+      // ── Reports subcollection ──────────────────────────────
+      match /reports/{reportId} {
+        // Faqat o'zi o'qiydi va yozadi
+        allow read, write: if request.auth != null &&
+          request.auth.uid == uid;
+      }
+    }
+
+    // ── PAYMENTS (audit log) ──────────────────────────────────
+    match /payments/{paymentId} {
+      // Faqat o'zi o'qiydi
+      allow read: if request.auth != null &&
+        resource.data.uid == request.auth.uid;
+
+      // Faqat admin yoki webhook (service account) yoza oladi
+      allow write: if isAdmin();
+    }
+  }
+}

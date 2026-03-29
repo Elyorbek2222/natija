@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Otchot yuklash</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg:      #0d0e0f;
+    --surface: #181a1b;
+    --surface2:#1e2122;
+    --border:  #2a2d2e;
+    --accent:  #c8ff00;
+    --accent2: #22c55e;
+    --text:    #f0f0f0;
+    --muted:   #6b7280;
+    --danger:  #ff4d4d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .user-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    object-fit: cover;
+  }
+  .btn-link {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    text-decoration: none;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-link:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .upload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .card-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  /* DROP ZONE */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--accent);
+    background: rgba(200,255,0,0.04);
+  }
+  .drop-icon { font-size: 40px; margin-bottom: 12px; }
+  .drop-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .drop-sub { font-size: 12px; color: var(--muted); }
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* FAYL ITEM */
+  .file-item {
+    padding: 11px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .file-item.done  { border-color: rgba(34,197,94,0.4); }
+  .file-item.error { border-color: rgba(255,77,77,0.35); }
+  .file-item.active { border-color: rgba(200,255,0,0.35); }
+  .file-icon { font-size: 20px; flex-shrink: 0; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .file-meta { font-size: 11px; color: var(--muted); margin-top: 2px; display:flex; gap:8px; }
+  .file-status { font-size: 11px; }
+  .file-status.ok    { color: var(--accent2); }
+  .file-status.error { color: var(--danger); }
+  .file-status.wait  { color: var(--muted); }
+  .file-remove {
+    background: none; border: none; color: var(--muted);
+    font-size: 16px; cursor: pointer; flex-shrink: 0;
+    transition: color 0.15s; padding: 0 4px;
+  }
+  .file-remove:hover { color: var(--danger); }
+
+  /* UPLOAD BTN */
+  .upload-btn {
+    display: none;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0d0e0f;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .upload-btn:hover   { opacity: 0.88; }
+  .upload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .upload-btn.show    { display: block; }
+
+  /* PROGRESS */
+  .progress-wrap {
+    display: none;
+    margin-top: 16px;
+  }
+  .progress-wrap.show { display: block; }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  /* STATUS */
+  .status-msg {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .status-msg.show  { display: block; }
+  .status-msg.ok    { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+  .status-msg.error { background: rgba(255,77,77,0.1); border: 1px solid rgba(255,77,77,0.3); color: #ff8080; }
+
+  /* INSTRUKSIYA */
+  .instr-wrap { margin-top: 28px; }
+  .instr-title {
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .platform-tabs {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+  }
+  .ptab {
+    padding: 5px 12px; border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 11px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .ptab:hover { border-color: rgba(200,255,0,0.3); color: var(--text); }
+  .ptab.active { border-color: var(--accent); color: var(--accent); }
+  .ptab-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  .instr-panel {
+    display: none;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px; color: var(--muted); line-height: 1.85;
+  }
+  .instr-panel.show { display: block; }
+  .instr-panel strong { color: var(--text); }
+  .instr-panel ol { padding-left: 16px; }
+  .instr-panel .note {
+    margin-top: 10px; padding: 8px 10px;
+    background: rgba(200,255,0,0.05);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    font-size: 11px; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a class="logo" href="dashboard.html">MARKETING DASHBOARD</a>
+  <div class="user-row">
+    <img class="user-avatar" id="userAvatar" src="" alt="">
+    <span id="userName"></span>
+    <a class="btn-link" href="dashboard.html">← Dashboard</a>
+    <button class="btn-link" id="logoutBtn">Chiqish</button>
+  </div>
+</div>
+
+<div class="content">
+  <div class="upload-card">
+    <div class="card-title">Otchot yuklash</div>
+    <div class="card-sub">Meta Ads Excel faylini yuklang — dashboard avtomatik yangilanadi</div>
+
+    <!-- Drop zone -->
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple>
+      <div class="drop-icon">📊</div>
+      <div class="drop-title">Fayllarni shu yerga tashlang</div>
+      <div class="drop-sub">bir vaqtda 4 tagacha fayl · .xlsx, .xls, .csv</div>
+    </div>
+
+    <!-- Fayllar ro'yxati -->
+    <div id="fileList" style="display:none;margin-top:14px;display:flex;flex-direction:column;gap:8px;"></div>
+
+    <!-- Yuklash tugmasi -->
+    <button class="upload-btn" id="uploadBtn">DASHBOARDGA YUKLASH</button>
+
+    <!-- Progress -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label">
+        <span id="progressLabel">Parse qilinmoqda...</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </div>
+
+    <!-- Xabar -->
+    <div class="status-msg" id="statusMsg"></div>
+
+    <!-- Instruksiya -->
+    <div class="instr-wrap">
+      <div class="instr-title">Qanday eksport qilish:</div>
+      <div class="platform-tabs">
+        <div class="ptab active" onclick="showInstr('meta')">
+          <span class="ptab-dot" style="background:#1877F2"></span> Meta Ads
+        </div>
+        <div class="ptab" onclick="showInstr('google')">
+          <span class="ptab-dot" style="background:#EA4335"></span> Google Ads
+        </div>
+        <div class="ptab" onclick="showInstr('telegram')">
+          <span class="ptab-dot" style="background:#229ED9"></span> Telegram Ads
+        </div>
+        <div class="ptab" onclick="showInstr('yandex')">
+          <span class="ptab-dot" style="background:#FF3B30"></span> Yandex Direct
+        </div>
+        <div class="ptab" onclick="showInstr('tiktok')">
+          <span class="ptab-dot" style="background:#69C9D0"></span> TikTok Ads
+        </div>
+        <div class="ptab" onclick="showInstr('mytarget')">
+          <span class="ptab-dot" style="background:#FF6B35"></span> myTarget
+        </div>
+      </div>
+
+      <!-- Meta Ads -->
+      <div class="instr-panel show" id="instr-meta">
+        <ol>
+          <li>Meta Ads Manager ga kiring → <strong>Reports</strong> bo'limi</li>
+          <li><strong>Create Report</strong> → Kampaniya darajasini tanlang</li>
+          <li>Ustunlar: Campaign name, Amount spent, Results, Result type, Impressions, Reach, CPM</li>
+          <li><strong>Export → Download as Excel (.xlsx)</strong> yoki <strong>CSV</strong></li>
+        </ol>
+        <div class="note">💡 "Campaign level" report — ad set yoki ad level emas</div>
+      </div>
+
+      <!-- Google Ads -->
+      <div class="instr-panel" id="instr-google">
+        <ol>
+          <li>Google Ads → <strong>Campaigns</strong> sahifasiga kiring</li>
+          <li>Yuqorida <strong>Columns</strong> → kerakli metrikalarni qo'shing</li>
+          <li>Sana oralig'ini tanlang</li>
+          <li><strong>Download ↓ → Excel (.xlsx)</strong> yoki <strong>CSV</strong></li>
+        </ol>
+        <div class="note">💡 Ustunlar: Campaign, Cost, Conversions, Impressions, Clicks, CTR, CPC</div>
+      </div>
+
+      <!-- Telegram Ads -->
+      <div class="instr-panel" id="instr-telegram">
+        <ol>
+          <li>Telegram Ad Platform → <strong>ads.telegram.org</strong></li>
+          <li><strong>Statistics</strong> → kerakli kampaniyani tanlang</li>
+          <li>Sana oralig'ini belgilang</li>
+          <li><strong>Export as CSV</strong> tugmasini bosing</li>
+        </ol>
+        <div class="note">💡 Ustunlar: Ad name, Spent, Views, Joins, CPM, CPC</div>
+      </div>
+
+      <!-- Yandex Direct -->
+      <div class="instr-panel" id="instr-yandex">
+        <ol>
+          <li>Yandex Direct → <strong>Statistika</strong></li>
+          <li><strong>Мастер отчётов</strong> ni oching</li>
+          <li>Kampaniya darajasini, sana oralig'ini tanlang</li>
+          <li><strong>Скачать → XLS</strong> tugmasini bosing</li>
+        </ol>
+        <div class="note">💡 Ustunlar: Кампания, Расход, Клики, Показы, CTR, CPC, Конверсии</div>
+      </div>
+
+      <!-- TikTok Ads -->
+      <div class="instr-panel" id="instr-tiktok">
+        <ol>
+          <li>TikTok Ads Manager → <strong>Reporting</strong></li>
+          <li><strong>Create Custom Report</strong> → Campaign level</li>
+          <li>Kerakli ustunlarni qo'shing: Spend, Impressions, Clicks, Conversions</li>
+          <li><strong>Export → Excel</strong> yoki <strong>CSV</strong></li>
+        </ol>
+        <div class="note">💡 Ustunlar: Campaign name, Cost, Impressions, Clicks, Conversions, CPM, CPC</div>
+      </div>
+
+      <!-- myTarget -->
+      <div class="instr-panel" id="instr-mytarget">
+        <ol>
+          <li>myTarget → <strong>Статистика</strong></li>
+          <li>Kampaniya darajasini tanlang</li>
+          <li>Sana oralig'ini belgilang</li>
+          <li><strong>Скачать отчёт → XLS</strong></li>
+        </ol>
+        <div class="note">💡 Ustunlar: Кампания, Расход, Показы, Клики, CTR, CPM</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/firebase.js"></script>
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ── Firebase ──────────────────────────────────────────────────
+  const app  = initializeApp(window.FIREBASE_CONFIG);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  window.__firebaseApp = app;
+
+  let currentUser = null;
+  let selectedFiles = []; // ko'p fayl
+
+  // ── To'lov tekshiruvi ─────────────────────────────────────────
+  async function checkAccess(uid) {
+    const snap = await getDoc(doc(db, "users", uid));
+    if (!snap.exists()) return false;
+    const d = snap.data();
+    if (!d.isPaid) return false;
+    if (d.paidUntil) {
+      const exp = d.paidUntil.toDate ? d.paidUntil.toDate() : new Date(d.paidUntil);
+      if (exp < new Date()) return false;
+    }
+    return true;
+  }
+
+  // ── Auth holati ───────────────────────────────────────────────
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = "index.html"; return; }
+    const allowed = await checkAccess(user.uid);
+    if (!allowed) { window.location.href = "paywall.html"; return; }
+    currentUser = user;
+
+    setInterval(async () => {
+      const stillAllowed = await checkAccess(user.uid);
+      if (!stillAllowed) { window.location.href = "paywall.html"; }
+    }, 60000);
+
+    document.getElementById("userName").textContent  = user.displayName;
+    document.getElementById("userAvatar").src        = user.photoURL || "";
+    document.getElementById("userAvatar").style.display = user.photoURL ? "" : "none";
+  });
+
+  // ── Logout ────────────────────────────────────────────────────
+  document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    window.location.href = "index.html";
+  };
+
+  // ── Drag & Drop ───────────────────────────────────────────────
+  const dropZone = document.getElementById("dropZone");
+  dropZone.addEventListener("dragover",  e => { e.preventDefault(); dropZone.classList.add("drag-over"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-over"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("drag-over");
+    addFiles(Array.from(e.dataTransfer.files));
+  });
+
+  document.getElementById("fileInput").onchange = e => {
+    addFiles(Array.from(e.target.files));
+    e.target.value = "";
+  };
+
+  function addFiles(files) {
+    const allowed = [".xlsx",".xls",".csv"];
+    files.forEach(f => {
+      const ext = f.name.slice(f.name.lastIndexOf(".")).toLowerCase();
+      if (!allowed.includes(ext)) return;
+      if (selectedFiles.find(x => x.name === f.name)) return; // dublikat
+      if (selectedFiles.length >= 4) return; // max 4 ta
+      selectedFiles.push(f);
+    });
+    renderFileList();
+    hideStatus();
+  }
+
+  function removeFile(name) {
+    selectedFiles = selectedFiles.filter(f => f.name !== name);
+    renderFileList();
+  }
+  window.removeFile = removeFile;
+
+  function renderFileList() {
+    const list = document.getElementById("fileList");
+    const btn  = document.getElementById("uploadBtn");
+    if (!selectedFiles.length) {
+      list.style.display = "none";
+      btn.classList.remove("show");
+      return;
+    }
+    list.style.display = "flex";
+    btn.classList.add("show");
+    const escH = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    list.innerHTML = selectedFiles.map((f, i) => `
+      <div class="file-item" id="fi-${i}">
+        <span class="file-icon">📄</span>
+        <div class="file-info">
+          <div class="file-name">${escH(f.name)}</div>
+          <div class="file-meta">
+            <span>${(f.size/1024).toFixed(0)} KB</span>
+            <span class="file-status wait" id="fs-${i}">Kutilmoqda</span>
+          </div>
+        </div>
+        <button class="file-remove" data-idx="${i}">✕</button>
+      </div>
+    `).join("");
+    list.onclick = e => {
+      const btn = e.target.closest("button.file-remove");
+      if (btn) removeFile(selectedFiles[+btn.dataset.idx]?.name);
+    };
+  }
+
+  // ── Drive upload (parallel, n8n orqali) ─────────────────────
+  const N8N_DRIVE_URL = "YOUR_N8N_WEBHOOK_URL"; // components/driveUpload.js dan oling
+
+  async function uploadToDrive(file, uid) {
+    if (!N8N_DRIVE_URL || N8N_DRIVE_URL.startsWith("YOUR_")) return null;
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("uid", uid);
+      fd.append("filename", file.name);
+      const res = await fetch(N8N_DRIVE_URL, { method: "POST", body: fd });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch { return null; }
+  }
+
+  // ── Upload & Parse (ko'p fayl) ────────────────────────────────
+  document.getElementById("uploadBtn").onclick = async () => {
+    if (!selectedFiles.length || !currentUser) return;
+
+    const btn = document.getElementById("uploadBtn");
+    btn.disabled = true;
+    hideStatus();
+
+    let totalCampaigns = 0;
+    let successCount   = 0;
+    let errorCount     = 0;
+    const total = selectedFiles.length;
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const pct  = Math.round(((i) / total) * 80) + 10;
+      showProgress(`${file.name} o'qilmoqda... (${i+1}/${total})`, pct);
+
+      const statusEl = document.getElementById("fs-" + i);
+      const itemEl   = document.getElementById("fi-" + i);
+
+      try {
+        if (statusEl) { statusEl.textContent = "Parse qilinmoqda..."; statusEl.className = "file-status wait"; }
+
+        const buffer     = await readBuffer(file);
+        const reportData = parseMetaAds(buffer);
+
+        await Promise.all([
+          addDoc(
+            collection(db, "users", currentUser.uid, "reports"),
+            { ...reportData, sourceFile: file.name, uploadedAt: serverTimestamp() }
+          ),
+          uploadToDrive(file, currentUser.uid)
+        ]);
+
+        totalCampaigns += reportData.campaigns.length;
+        successCount++;
+        if (statusEl) { statusEl.textContent = `✓ ${reportData.campaigns.length} kampaniya`; statusEl.className = "file-status ok"; }
+        if (itemEl)   itemEl.classList.add("done");
+
+      } catch (err) {
+        errorCount++;
+        if (statusEl) { statusEl.textContent = "❌ " + err.message.slice(0, 40); statusEl.className = "file-status error"; }
+        if (itemEl)   itemEl.classList.add("error");
+      }
+    }
+
+    showProgress("Tayyor!", 100);
+    if (successCount > 0) {
+      showStatus("ok", `✅ ${successCount} ta fayl yuklandi, ${totalCampaigns} kampaniya${errorCount ? ` | ${errorCount} ta xato` : ""}. Dashboard yangilanmoqda...`);
+      setTimeout(() => { window.location.href = "dashboard.html"; }, 2000);
+    } else {
+      showStatus("error", "❌ Hech bir fayl yuklanmadi. Ustun nomlarini tekshiring.");
+      btn.disabled = false;
+    }
+  };
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function readBuffer(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = e => res(e.target.result);
+      r.onerror = () => rej(new Error("Faylni o'qib bo'lmadi"));
+      r.readAsArrayBuffer(file);
+    });
+  }
+
+  function showProgress(label, pct) {
+    document.getElementById("progressWrap").classList.add("show");
+    document.getElementById("progressLabel").textContent = label;
+    document.getElementById("progressPct").textContent   = pct + "%";
+    document.getElementById("progressBar").style.width   = pct + "%";
+  }
+  function hideProgress() {
+    document.getElementById("progressWrap").classList.remove("show");
+  }
+  function showStatus(type, msg) {
+    const el = document.getElementById("statusMsg");
+    el.className = "status-msg show " + type;
+    el.textContent = msg;
+  }
+  function hideStatus() {
+    document.getElementById("statusMsg").className = "status-msg";
+  }
+
+  // ── Meta Ads Excel Parser ─────────────────────────────────────
+  function parseMetaAds(buffer) {
+    const XLSX = window.XLSX;
+    const wb   = XLSX.read(buffer, { type: "array" });
+    const ws   = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+    if (!rows.length) throw new Error("Excel fayl bo'sh");
+
+    const headers = Object.keys(rows[0]);
+
+    // Ustun topish (qisman moslik bilan)
+    function col(aliases) {
+      for (const a of aliases) {
+        const f = headers.find(h => h && h.toString().toLowerCase().includes(a.toLowerCase()));
+        if (f) return f;
+      }
+      return null;
+    }
+
+    const C = {
+      campaign:    col(["campaign name","название кампании","kampaniya","кампания","ad name"]),
+      spend:       col(["amount spent","потрачено (","потрачено","spend","расход","cost"]),
+      results:     col(["results","результаты","conversions","конверсии","joins","клики по"]),
+      result_type: col(["result type","тип результата","result indicator","conversion type"]),
+      impressions: col(["impressions","показы","views"]),
+      reach:       col(["reach","охват"]),
+      cpm:         col(["cpm","цена за 1000","cost per 1,0"]),
+      cpr:         col(["cost per result","цена за результат","cost per","cpc","цена за клик"])
+    };
+
+    // Result type larni o'zbekchaga tarjima qilish
+    const RESULT_TYPE_UZ = {
+      "начата переписка":     "Xabar yuborildi",
+      "лиды (форма)":         "Lid (forma)",
+      "просмотр видео":       "Video ko'rishlar",
+      "клики по ссылке":      "Havolaga klik",
+      "охват":                "Qamrov",
+      "показы":               "Ko'rsatishlar",
+      "link clicks":          "Havolaga klik",
+      "leads":                "Lidlar",
+      "messaging conversations started": "Xabar yuborildi",
+      "video views":          "Video ko'rishlar",
+      "post engagement":      "Post faolligi",
+      "page likes":           "Sahifa layklari",
+      "reach":                "Qamrov",
+      "impressions":          "Ko'rsatishlar"
+    };
+    function translateResultType(rt) {
+      return RESULT_TYPE_UZ[rt.trim().toLowerCase()] || rt;
+    }
+
+    if (!C.campaign) throw new Error("'Campaign name' ustuni topilmadi. Meta Ads otchotini yuklang.");
+
+    // Kampaniyalar bo'yicha guruhlaymiz
+    const groups = {};
+    for (const row of rows) {
+      const name = (row[C.campaign] || "").toString().trim();
+      if (!name || /total|итого/i.test(name)) continue;
+      if (!groups[name]) groups[name] = { rows: [], types: new Set() };
+      groups[name].rows.push(row);
+      if (C.result_type && row[C.result_type]) groups[name].types.add(row[C.result_type].toString().trim());
+    }
+
+    if (!Object.keys(groups).length) throw new Error("Kampaniyalar topilmadi");
+
+    const n = v => parseFloat(v) || 0;
+    const campaigns = Object.entries(groups).map(([name, g]) => {
+      const sum = k => k ? g.rows.reduce((s,r) => s + n(r[k]), 0) : 0;
+
+      const spent      = +sum(C.spend).toFixed(2);
+      const results    = Math.round(sum(C.results));
+      const impressions = Math.round(sum(C.impressions));
+      const reach      = Math.round(sum(C.reach));
+      const cpr        = C.cpr
+        ? +(sum(C.cpr) / g.rows.length).toFixed(2)
+        : results > 0 ? +(spent / results).toFixed(2) : 0;
+      const cpm        = C.cpm
+        ? +(sum(C.cpm) / g.rows.length).toFixed(2)
+        : impressions > 0 ? +(spent / impressions * 1000).toFixed(2) : 0;
+
+      return {
+        name,
+        short: name.replace(/^[A-Z]{1,4}\s*\|\s*/i, "").trim().slice(0, 22),
+        result_types: [...g.types].map(translateResultType),
+        metrics: { spent_usd: spent, results, cost_per_result_usd: cpr, impressions, reach, cpm_usd: cpm },
+        structure: { ads_count: g.rows.length, active_days: g.rows.length }
+      };
+    });
+
+    const totals = {
+      spent_usd:    +campaigns.reduce((s,c) => s+c.metrics.spent_usd, 0).toFixed(2),
+      results:       campaigns.reduce((s,c) => s+c.metrics.results, 0),
+      impressions:   campaigns.reduce((s,c) => s+c.metrics.impressions, 0),
+      avg_cost_per_result_usd: +(
+        campaigns.reduce((s,c) => s+c.metrics.spent_usd, 0) /
+        Math.max(campaigns.reduce((s,c) => s+c.metrics.results, 0), 1)
+      ).toFixed(2)
+    };
+
+    return {
+      meta: { platform: "Meta Ads", period_start: "", period_end: "", uploaded: new Date().toISOString() },
+      campaigns,
+      totals
+    };
+  }
+</script>
+
+<script>
+  function showInstr(platform) {
+    // Barcha panellarni yashir
+    document.querySelectorAll(".instr-panel").forEach(p => p.classList.remove("show"));
+    document.querySelectorAll(".ptab").forEach(t => t.classList.remove("active"));
+    // Tanlanganni ko'rsat
+    document.getElementById("instr-" + platform).classList.add("show");
+    event.currentTarget.classList.add("active");
+  }
+</script>
+</body>
+</html>
