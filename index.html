@@ -689,6 +689,16 @@ body {
   <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
 </div>
 
+<style>
+.sup-btn{position:fixed;bottom:20px;right:20px;z-index:200;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#9ca3af;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
+.sup-btn:hover{border-color:#c8ff00;color:#c8ff00;}
+.sup-popup{position:fixed;bottom:64px;right:20px;z-index:199;background:rgba(20,22,25,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px;width:200px;display:none;flex-direction:column;gap:8px;}
+.sup-popup.open{display:flex;}
+.sup-popup-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;margin-bottom:2px;}
+.sup-link{display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;text-decoration:none;padding:5px 6px;border-radius:7px;transition:background .12s,color .12s;}
+.sup-link:hover{background:rgba(255,255,255,.05);color:#f0f0f0;}
+.sup-divider{height:1px;background:rgba(255,255,255,.06);margin:2px 0;}
+</style>
 <!-- ── SUPPORT WIDGET ──────────────────────────────────────── -->
 <div class="sup-popup" id="supPopup">
   <div class="sup-popup-title">EO Automation</div>
