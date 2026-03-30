@@ -157,13 +157,14 @@ header {
 .hl-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
 .hl-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 34px; font-weight: 900;
-  color: var(--text); line-height: 1.1; margin-bottom: 8px;
+  font-size: 44px; font-weight: 900;
+  color: var(--text); line-height: 1.05; margin-bottom: 10px;
+  letter-spacing: -0.01em;
 }
 .hl-title em { color: var(--accent); font-style: normal; }
 .hl-sub {
-  font-size: 13px; color: var(--muted);
-  line-height: 1.6;
+  font-size: 14px; color: #9ca3af;
+  line-height: 1.65; max-width: 360px; margin: 0 auto;
 }
 
 /* Proof chips */
@@ -401,8 +402,8 @@ header {
       Meta · Google · Yandex · Telegram · TikTok · myTarget
       <span class="hl-dot"></span>
     </div>
-    <h1 class="hl-title">Reklama tahlili —<br><em>bir joyda, real vaqtda</em></h1>
-    <p class="hl-sub">Excel yuklang, 30 soniyada dashboard tayyor. Qaysi kampaniya pul isrof qilayotganini ko'ring.</p>
+    <h1 class="hl-title">Reklamangiz qayerda<br><em>pul isrof qilyapti?</em></h1>
+    <p class="hl-sub">Excel yuklang → 30 soniyada aniq javob.<br>Zarar beruvchi kampaniyani toping va o'chiring.</p>
   </div>
 
   <!-- Proof chips -->
@@ -739,8 +740,8 @@ header {
 .pay-lang .lb.active{background:rgba(200,255,0,.1);color:#c8ff00;}
 </style>
 <div class="pay-lang">
-  <button class="lb" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
-  <button class="lb" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+  <button class="lb lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+  <button class="lb lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
 </div>
 
 <!-- support -->
