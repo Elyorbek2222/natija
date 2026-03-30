@@ -397,7 +397,15 @@ const I18n = (() => {
     apply();
   }
 
-  return { set, t, apply, getLang };
+  function _addKeys(extraDict) {
+    Object.keys(extraDict).forEach(lang => {
+      if (!DICT[lang]) DICT[lang] = {};
+      Object.assign(DICT[lang], extraDict[lang]);
+    });
+    apply();
+  }
+
+  return { set, t, apply, getLang, _addKeys };
 })();
 
 window.I18n = I18n;

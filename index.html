@@ -11,149 +11,282 @@ ym(108305889,'init',{ssr:true,webvisor:true,clickmap:true,ecommerce:'dataLayer',
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Targeet — Kirish</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
   background: #050608;
   color: #f0f0f0;
   font-family: 'Inter', sans-serif;
-  min-height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-/* ── 3D CANVAS BACKGROUND ── */
+/* ── CANVAS BG ── */
 #bgCanvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none;
 }
 
-/* ── FLOATING STATS (decorative) ── */
-.float-stat {
-  position: fixed;
-  background: rgba(15,17,20,0.7);
-  border: 1px solid rgba(200,255,0,0.15);
-  border-radius: 12px;
-  padding: 14px 18px;
-  backdrop-filter: blur(12px);
-  z-index: 1;
-  animation: floatUp 6s ease-in-out infinite;
-}
-.float-stat .fs-label { font-size: 10px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-.float-stat .fs-value { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 700; color: #f0f0f0; }
-.float-stat .fs-change { font-size: 11px; color: #22c55e; margin-top: 2px; }
-
-.fs1 { top: 18%; left: 6%; animation-delay: 0s; }
-.fs2 { top: 55%; left: 4%; animation-delay: 1.5s; }
-.fs3 { top: 22%; right: 6%; animation-delay: 0.8s; }
-.fs4 { top: 60%; right: 5%; animation-delay: 2.2s; }
-.fs5 { bottom: 12%; left: 50%; transform: translateX(-50%); animation-delay: 1s; display: flex; gap: 28px; }
-
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-10px); }
-}
-.fs5 { animation: floatUp 7s ease-in-out infinite; }
-
-/* ── MINI SPARKLINE ── */
-.sparkline { margin-top: 6px; }
-.sparkline svg { display: block; }
-
-/* ── LOGIN CARD ── */
-.login-wrap {
-  position: relative;
-  z-index: 10;
+/* ── LANG BUTTONS ── */
+.login-lang {
+  position: fixed; top: 16px; right: 16px; z-index: 300;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; overflow: hidden;
+}
+.login-lang .lang-btn {
+  padding: 5px 10px; font-size: 11px; font-weight: 600;
+  background: transparent; border: none; cursor: pointer;
+  color: rgba(240,240,240,.5);
+  font-family: 'Inter', sans-serif;
+  transition: background .15s, color .15s;
+}
+.login-lang .lang-btn:hover { color: #f0f0f0; }
+.login-lang .lang-btn.active { background: rgba(200,255,0,.12); color: #c8ff00; }
+
+/* ── PROGRESS DOTS ── */
+.slide-dots {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex; gap: 8px; align-items: center;
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.dot.active {
+  background: #c8ff00;
+  width: 22px; border-radius: 4px;
 }
 
-.login-card {
-  background: rgba(12, 14, 16, 0.75);
+/* ── SLIDES SYSTEM ── */
+.slides-outer {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex;
+  width: 300vw;
+  height: 100vh;
+  transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.slide {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow-y: auto;
+  padding: 24px 20px 72px;
+}
+
+/* ══════════════════════════════
+   SLIDE 1 — Bu produkt kimlar uchun?
+══════════════════════════════ */
+.s1-inner {
+  width: 100%; max-width: 780px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0;
+  animation: slideIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.s1-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px; font-weight: 800;
+  color: #c8ff00; letter-spacing: 0.12em;
+  margin-bottom: 40px; opacity: 0.7;
+}
+.s1-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(200,255,0,0.08);
   border: 1px solid rgba(200,255,0,0.2);
   border-radius: 20px;
-  padding: 48px 40px;
+  font-size: 11px; font-weight: 600;
+  color: #c8ff00; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.s1-headline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 900;
+  color: #f0f2f5;
+  text-align: center;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+}
+.s1-headline span { color: #c8ff00; }
+.s1-sub {
+  font-size: 14px; color: #6b7280;
+  text-align: center; line-height: 1.7;
+  margin-bottom: 44px;
+  max-width: 480px;
+}
+
+/* Audience grid */
+.audience-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
   width: 100%;
-  max-width: 400px;
+  margin-bottom: 44px;
+}
+.aud-card {
+  background: rgba(14,16,20,0.82);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 24px 22px;
+  display: flex; gap: 16px; align-items: flex-start;
+  backdrop-filter: blur(16px);
+  transition: all 0.25s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.aud-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.3s;
+  border-radius: 16px;
+}
+.aud-card:hover { transform: translateY(-2px); }
+.aud-card:hover::before { opacity: 1; }
+
+.aud-card.c1::before { background: radial-gradient(ellipse at 20% 20%, rgba(59,130,246,0.08), transparent 60%); }
+.aud-card.c2::before { background: radial-gradient(ellipse at 20% 20%, rgba(200,255,0,0.07), transparent 60%); }
+.aud-card.c3::before { background: radial-gradient(ellipse at 20% 20%, rgba(168,85,247,0.08), transparent 60%); }
+.aud-card.c4::before { background: radial-gradient(ellipse at 20% 20%, rgba(239,68,68,0.08), transparent 60%); }
+
+.aud-card:hover.c1 { border-color: rgba(59,130,246,0.25); }
+.aud-card:hover.c2 { border-color: rgba(200,255,0,0.2); }
+.aud-card:hover.c3 { border-color: rgba(168,85,247,0.25); }
+.aud-card:hover.c4 { border-color: rgba(239,68,68,0.25); }
+
+.aud-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.c1 .aud-icon { background: rgba(59,130,246,0.12); }
+.c2 .aud-icon { background: rgba(200,255,0,0.1); }
+.c3 .aud-icon { background: rgba(168,85,247,0.12); }
+.c4 .aud-icon { background: rgba(239,68,68,0.1); }
+
+.aud-body {}
+.aud-title {
+  font-size: 14px; font-weight: 700;
+  color: #f0f2f5; margin-bottom: 5px;
+}
+.c1 .aud-title { color: #93c5fd; }
+.c2 .aud-title { color: #d9ff4d; }
+.c3 .aud-title { color: #c4b5fd; }
+.c4 .aud-title { color: #fca5a5; }
+
+.aud-desc {
+  font-size: 12px; color: #6b7280; line-height: 1.6;
+}
+
+/* CTA */
+.s1-cta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 36px;
+  background: #c8ff00;
+  color: #050608;
+  border: none; border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.s1-cta:hover {
+  background: #d4ff26;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(200,255,0,0.3);
+}
+.s1-cta svg { transition: transform 0.2s; }
+.s1-cta:hover svg { transform: translateX(3px); }
+
+/* ══════════════════════════════
+   SLIDE 2 — Login
+══════════════════════════════ */
+.login-wrap {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%;
+}
+.login-card {
+  background: rgba(12,14,16,0.78);
+  border: 1px solid rgba(200,255,0,0.18);
+  border-radius: 20px;
+  padding: 44px 38px;
+  width: 100%; max-width: 400px;
   text-align: center;
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow:
-    0 0 0 1px rgba(200,255,0,0.05),
-    0 20px 60px rgba(0,0,0,0.6),
-    0 0 80px rgba(200,255,0,0.04);
-  position: relative;
-  overflow: hidden;
-  animation: cardIn 0.6s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 0 0 1px rgba(200,255,0,0.05), 0 20px 60px rgba(0,0,0,0.6);
+  position: relative; overflow: hidden;
+  animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
 }
-
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 .card-glow {
-  position: absolute;
-  top: -60px; left: 50%;
+  position: absolute; top: -60px; left: 50%;
   transform: translateX(-50%);
   width: 200px; height: 120px;
-  background: radial-gradient(ellipse, rgba(200,255,0,0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(200,255,0,0.1) 0%, transparent 70%);
   pointer-events: none;
 }
 .card-line {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.5), transparent);
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.4), transparent);
 }
+.back-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: #4b5563;
+  background: none; border: none;
+  cursor: pointer; margin-bottom: 28px;
+  padding: 0; font-family: 'Inter', sans-serif;
+  transition: color 0.2s;
+}
+.back-btn:hover { color: #9ca3af; }
 
 .logo {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 26px;
-  font-weight: 800;
-  color: #c8ff00;
-  letter-spacing: 0.06em;
+  font-size: 24px; font-weight: 800;
+  color: #c8ff00; letter-spacing: 0.06em;
   margin-bottom: 4px;
 }
 .logo-sub {
-  font-size: 12px;
-  color: #4b5563;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 32px;
+  font-size: 11px; color: #4b5563;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 28px;
 }
-
 .tagline {
-  font-size: 22px;
-  font-weight: 600;
-  color: #f0f0f0;
-  line-height: 1.3;
-  margin-bottom: 8px;
+  font-size: 20px; font-weight: 600;
+  color: #f0f0f0; line-height: 1.3; margin-bottom: 6px;
 }
 .tagline-sub {
-  font-size: 13px;
-  color: #6b7280;
-  margin-bottom: 36px;
-  line-height: 1.6;
+  font-size: 13px; color: #6b7280;
+  margin-bottom: 28px; line-height: 1.6;
 }
 
-/* ── PLATFORM SCROLL ── */
+/* Platform scroll */
 .platform-scroll {
   overflow: hidden;
-  margin: 0 -40px 28px;
+  margin: 0 -38px 24px;
   mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
 }
 .platform-track {
-  display: flex;
-  gap: 8px;
+  display: flex; gap: 7px;
   width: max-content;
   animation: scrollPlatforms 18s linear infinite;
 }
@@ -162,122 +295,273 @@ body {
   100% { transform: translateX(-50%); }
 }
 .ptag {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-  border: 1px solid;
+  display: inline-block; padding: 4px 10px;
+  border-radius: 20px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.03em; white-space: nowrap; border: 1px solid;
 }
 .ptag.meta    { color: #3b82f6; border-color: rgba(59,130,246,0.3);  background: rgba(59,130,246,0.08); }
 .ptag.google  { color: #f59e0b; border-color: rgba(245,158,11,0.3);  background: rgba(245,158,11,0.08); }
 .ptag.yandex  { color: #ef4444; border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.08); }
 .ptag.tg      { color: #06b6d4; border-color: rgba(6,182,212,0.3);   background: rgba(6,182,212,0.08); }
-.ptag.yt      { color: #ef4444; border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.08); }
+.ptag.yt      { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08); }
 .ptag.ig      { color: #ec4899; border-color: rgba(236,72,153,0.3);  background: rgba(236,72,153,0.08); }
 .ptag.seo     { color: #22c55e; border-color: rgba(34,197,94,0.3);   background: rgba(34,197,94,0.08); }
 .ptag.email   { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
 
-/* ── GOOGLE BUTTON ── */
+/* Google button */
 .google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; width: 100%;
   padding: 14px 20px;
-  background: #f0f0f0;
-  color: #111;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
+  background: #f0f0f0; color: #111;
+  border: none; border-radius: 12px;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
 }
 .google-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0);
-  transition: background 0.2s;
+  content: ''; position: absolute; inset: 0;
+  background: rgba(0,0,0,0); transition: background 0.2s;
 }
 .google-btn:hover::after { background: rgba(0,0,0,0.06); }
 .google-btn:active { transform: scale(0.98); }
 .google-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.google-icon { width: 20px; height: 20px; flex-shrink: 0; }
 
-.google-icon {
-  width: 20px; height: 20px; flex-shrink: 0;
-}
-
-/* ── DIVIDER ── */
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 20px 0;
-  font-size: 12px;
-  color: #374151;
-}
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #1f2937;
-}
-
-/* ── TRUST BADGES ── */
-.trust-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 28px;
-}
-.trust-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  color: #374151;
-}
-.trust-item svg { opacity: 0.5; }
-
-/* ── ERROR ── */
 .error-msg {
-  display: none;
-  margin-top: 14px;
+  display: none; margin-top: 14px;
   padding: 10px 14px;
   background: rgba(239,68,68,0.1);
   border: 1px solid rgba(239,68,68,0.25);
-  border-radius: 8px;
-  font-size: 13px;
-  color: #f87171;
-  text-align: left;
+  border-radius: 8px; font-size: 13px; color: #f87171; text-align: left;
 }
+
+/* Trust badges */
+.trust-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 14px; margin-top: 24px;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: #374151;
+}
+.trust-item svg { opacity: 0.5; }
+
+/* Preview CTA */
+.preview-link {
+  margin-top: 18px;
+  font-size: 12px; color: #374151;
+}
+.preview-link button {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; color: #6b7280;
+  font-family: 'Inter', sans-serif;
+  text-decoration: underline; padding: 0;
+  transition: color 0.2s;
+}
+.preview-link button:hover { color: #9ca3af; }
+
+/* ══════════════════════════════
+   SLIDE 3 — Dashboard Preview
+══════════════════════════════ */
+.s3-inner {
+  width: 100%; max-width: 900px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 0;
+  animation: slideIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+.s3-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  background: rgba(59,130,246,0.1);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  color: #93c5fd; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.s3-headline {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(28px, 4.5vw, 50px);
+  font-weight: 900; color: #f0f2f5;
+  text-align: center; line-height: 1.1;
+  margin-bottom: 8px;
+}
+.s3-headline span { color: #c8ff00; }
+.s3-sub {
+  font-size: 13px; color: #6b7280;
+  text-align: center; line-height: 1.7;
+  margin-bottom: 32px; max-width: 520px;
+}
+
+/* Dashboard mockup */
+.db-mockup {
+  width: 100%; max-width: 820px;
+  background: rgba(10,12,16,0.9);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  margin-bottom: 32px;
+}
+/* Topbar */
+.db-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 18px;
+  background: rgba(15,17,22,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.db-topbar-left { display: flex; align-items: center; gap: 10px; }
+.db-mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+.db-mock-dot.r { background: #ef4444; }
+.db-mock-dot.y { background: #f59e0b; }
+.db-mock-dot.g { background: #22c55e; }
+.db-mock-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; color: #c8ff00;
+  letter-spacing: 0.06em; margin-left: 8px;
+}
+.db-topbar-right { display: flex; gap: 8px; }
+.db-mock-badge {
+  padding: 3px 10px; border-radius: 6px;
+  font-size: 10px; font-weight: 600;
+}
+.db-mock-badge.blue { background: rgba(59,130,246,0.15); color: #93c5fd; }
+.db-mock-badge.green { background: rgba(34,197,94,0.12); color: #86efac; }
+
+/* Mockup body */
+.db-body { display: flex; }
+/* Sidebar */
+.db-sidebar {
+  width: 44px; background: rgba(12,14,18,0.98);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex; flex-direction: column;
+  align-items: center; padding: 14px 0; gap: 6px;
+}
+.db-nav-dot {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.db-nav-dot.active { background: rgba(200,255,0,0.12); }
+.db-nav-dot:not(.active) { opacity: 0.3; }
+
+/* Main area */
+.db-main { flex: 1; padding: 16px 18px; }
+
+/* KPI row */
+.db-kpis {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 10px; margin-bottom: 14px;
+}
+.db-kpi {
+  background: rgba(20,22,28,0.8);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 12px 14px;
+}
+.db-kpi-label { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.db-kpi-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 700; color: #f0f2f5; line-height: 1;
+}
+.db-kpi-change { font-size: 10px; margin-top: 4px; }
+.db-kpi-change.up { color: #22c55e; }
+.db-kpi-change.down { color: #ef4444; }
+
+/* Charts row */
+.db-charts { display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-bottom: 14px; }
+.db-chart-box {
+  background: rgba(20,22,28,0.8);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 12px 14px;
+}
+.db-chart-title { font-size: 9px; color: #6b7280; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Fake bar chart */
+.fake-bars { display: flex; align-items: flex-end; gap: 5px; height: 52px; }
+.fb {
+  flex: 1; border-radius: 3px 3px 0 0;
+  opacity: 0.75;
+}
+.fb.accent { background: #c8ff00; opacity: 0.85; }
+.fb.blue   { background: #3b82f6; }
+.fb.amber  { background: #f59e0b; }
+.fb.purple { background: #a78bfa; }
+.fb.green  { background: #22c55e; }
+.fb.red    { background: #ef4444; }
+
+/* Fake line chart */
+.fake-line { height: 52px; position: relative; }
+.fake-line svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+/* Table */
+.db-table { width: 100%; }
+.db-tr {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: center;
+}
+.db-tr.header .db-td { font-size: 9px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em; }
+.db-td { font-size: 11px; color: #9ca3af; }
+.db-td.name { color: #d1d5db; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-td.green { color: #4ade80; }
+.db-td.red   { color: #f87171; }
+.db-status {
+  display: inline-flex; padding: 2px 7px; border-radius: 4px;
+  font-size: 9px; font-weight: 600;
+}
+.db-status.on  { background: rgba(34,197,94,0.12); color: #86efac; }
+.db-status.off { background: rgba(107,114,128,0.15); color: #6b7280; }
+
+/* Feature bullets */
+.s3-features {
+  display: flex; gap: 28px; flex-wrap: wrap;
+  justify-content: center; margin-bottom: 32px;
+}
+.s3-feat {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #9ca3af;
+}
+.s3-feat-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #c8ff00; flex-shrink: 0;
+}
+
+/* S3 CTA */
+.s3-cta {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 40px;
+  background: #c8ff00; color: #050608;
+  border: none; border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.s3-cta:hover {
+  background: #d4ff26; transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(200,255,0,0.3);
+}
+.s3-back {
+  margin-top: 14px; background: none; border: none; cursor: pointer;
+  font-size: 12px; color: #4b5563; font-family: 'Inter', sans-serif;
+  transition: color 0.2s;
+}
+.s3-back:hover { color: #9ca3af; }
 
 /* ── LOADING OVERLAY ── */
 .loading-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(5,6,8,0.85);
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  gap: 14px;
-  z-index: 200;
-  backdrop-filter: blur(4px);
+  display: none; position: fixed; inset: 0;
+  background: rgba(5,6,8,0.88);
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px;
+  z-index: 400; backdrop-filter: blur(4px);
 }
 .loading-overlay.show { display: flex; }
 .spinner {
-  width: 40px; height: 40px;
+  width: 38px; height: 38px;
   border: 2px solid rgba(200,255,0,0.15);
   border-top-color: #c8ff00;
   border-radius: 50%;
@@ -287,9 +571,18 @@ body {
 .loading-text { font-size: 13px; color: #4b5563; }
 
 /* ── RESPONSIVE ── */
-@media (max-width: 480px) {
-  .login-card { margin: 16px; padding: 36px 24px; }
-  .float-stat { display: none; }
+@media (max-width: 600px) {
+  .audience-grid { grid-template-columns: 1fr; gap: 10px; }
+  .aud-card { padding: 18px 16px; }
+  .db-kpis { grid-template-columns: repeat(2, 1fr); }
+  .db-charts { grid-template-columns: 1fr; }
+  .db-sidebar { display: none; }
+  .s3-features { gap: 16px; }
+  .s1-sub { display: none; }
+}
+@media (max-width: 380px) {
+  .audience-grid { gap: 8px; }
+  .s1-cta, .s3-cta { padding: 13px 28px; font-size: 14px; }
 }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -299,125 +592,333 @@ body {
 <!-- 3D Canvas Background -->
 <canvas id="bgCanvas"></canvas>
 
-<!-- Floating Stats (decorative) -->
-<div class="float-stat fs1">
-  <div class="fs-label">Umumiy xarajat</div>
-  <div class="fs-value">$470</div>
-  <div class="fs-change">↑ 12% o'sdi</div>
-  <div class="sparkline">
-    <svg width="80" height="24" viewBox="0 0 80 24">
-      <polyline points="0,20 13,16 26,18 40,8 53,12 66,6 80,4"
-        fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.7"/>
-    </svg>
-  </div>
+<!-- Lang buttons -->
+<div class="login-lang">
+  <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+  <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
 </div>
 
-<div class="float-stat fs2">
-  <div class="fs-label">Natijalar</div>
-  <div class="fs-value">575</div>
-  <div class="fs-change">↑ 8% leads</div>
+<!-- Progress dots -->
+<div class="slide-dots" id="slideDots">
+  <div class="dot active" onclick="goSlide(0)"></div>
+  <div class="dot"        onclick="goSlide(1)"></div>
+  <div class="dot"        onclick="goSlide(2)"></div>
 </div>
 
-<div class="float-stat fs3">
-  <div class="fs-label">O'rtacha CPR</div>
-  <div class="fs-value">$0.82</div>
-  <div class="fs-change">↓ 23% arzonladi</div>
-</div>
-
-<div class="float-stat fs4">
-  <div class="fs-label">Impressions</div>
-  <div class="fs-value">399K</div>
-  <div class="fs-change">↑ 31% ko'proq</div>
-</div>
-
-<div class="float-stat fs5">
-  <div>
-    <div class="fs-label">Kampaniyalar</div>
-    <div class="fs-value" style="font-size:20px">6</div>
-  </div>
-  <div style="width:1px;background:rgba(255,255,255,0.06)"></div>
-  <div>
-    <div class="fs-label">Faol kunlar</div>
-    <div class="fs-value" style="font-size:20px">18</div>
-  </div>
-  <div style="width:1px;background:rgba(255,255,255,0.06)"></div>
-  <div>
-    <div class="fs-label">Reach</div>
-    <div class="fs-value" style="font-size:20px">339K</div>
-  </div>
-</div>
-
-<!-- Loading -->
+<!-- Loading overlay -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText" data-i18n="load.checking">Tekshirilmoqda...</div>
 </div>
 
-<!-- Login Card -->
-<div class="login-wrap">
-  <div class="login-card">
-    <div class="card-glow"></div>
-    <div class="card-line"></div>
+<!-- ═══════════════════ SLIDES ═══════════════════ -->
+<div class="slides-outer" id="slidesOuter">
 
-    <div class="logo">MARKETING DASHBOARD</div>
-    <div class="logo-sub" data-i18n="login.sub">Multi-Platform Analytics</div>
+  <!-- ── SLIDE 1: Kimlar uchun ── -->
+  <div class="slide" id="slide1">
+    <div class="s1-inner">
+      <div class="s1-logo">TARGEET</div>
 
-    <div class="tagline" data-i18n-html="login.tagline">Reklamangizni<br>nazorat qiling</div>
-    <div class="tagline-sub" data-i18n-html="login.desc">
-      Barcha reklamalarni bir joyda kuzating.<br>
-      Har bir so'm qaerga ketganini ko'ring.
+      <div class="s1-tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+        <span data-i18n="onb.tag">Marketing Analytics Platform</span>
+      </div>
+
+      <h1 class="s1-headline">
+        <span data-i18n="onb.who_pre">Bu platform</span><br>
+        <span data-i18n="onb.who_hl">kimlar uchun?</span>
+      </h1>
+      <p class="s1-sub" data-i18n="onb.who_sub">
+        Reklama xarajatlaringizni professional darajada nazorat qilish — barcha platformalar bir joyda
+      </p>
+
+      <!-- 4 audience cards -->
+      <div class="audience-grid">
+
+        <div class="aud-card c1">
+          <div class="aud-icon">🎬</div>
+          <div class="aud-body">
+            <div class="aud-title" data-i18n="onb.a1_title">Info-biznes Producerlar</div>
+            <div class="aud-desc" data-i18n="onb.a1_desc">Kurs, webinar, coaching sotasizmi? Har bir reklama so'miningiz qayerga ketayotganini kuzating va samarasizlarni o'chiring.</div>
+          </div>
+        </div>
+
+        <div class="aud-card c2">
+          <div class="aud-icon">🏢</div>
+          <div class="aud-body">
+            <div class="aud-title" data-i18n="onb.a2_title">Biznes Egalari</div>
+            <div class="aud-desc" data-i18n="onb.a2_desc">Marketingga sarflangan byudjetni nazorat qiling. Qaysi kanal eng ko'p foyda keltirishini bir nazar bilan ko'ring.</div>
+          </div>
+        </div>
+
+        <div class="aud-card c3">
+          <div class="aud-icon">📊</div>
+          <div class="aud-body">
+            <div class="aud-title" data-i18n="onb.a3_title">Marketologlar</div>
+            <div class="aud-desc" data-i18n="onb.a3_desc">Meta, Google, Yandex, Telegram — barcha platformalar hisobotini bir dashboardda tahlil qiling va vaqtingizni tejang.</div>
+          </div>
+        </div>
+
+        <div class="aud-card c4">
+          <div class="aud-icon">🎯</div>
+          <div class="aud-body">
+            <div class="aud-title" data-i18n="onb.a4_title">Targetologlar</div>
+            <div class="aud-desc" data-i18n="onb.a4_desc">Mijozlarga professional vizual hisobot bering. Excelni yuklang — dashboard avtomatik yaratiladi.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="s1-cta" onclick="goSlide(1)">
+        <span data-i18n="onb.next">Davom etish</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
     </div>
+  </div>
 
-    <div class="platform-scroll">
-      <div class="platform-track">
-        <span class="ptag meta">Meta Ads</span>
-        <span class="ptag google">Google Ads</span>
-        <span class="ptag yandex">Yandex Direct</span>
-        <span class="ptag tg">Telegram Ads</span>
-        <span class="ptag yt">YouTube</span>
-        <span class="ptag ig">Instagram</span>
-        <span class="ptag seo">SEO</span>
-        <span class="ptag email">Email</span>
-        <!-- duplicate for infinite loop -->
-        <span class="ptag meta">Meta Ads</span>
-        <span class="ptag google">Google Ads</span>
-        <span class="ptag yandex">Yandex Direct</span>
-        <span class="ptag tg">Telegram Ads</span>
-        <span class="ptag yt">YouTube</span>
-        <span class="ptag ig">Instagram</span>
-        <span class="ptag seo">SEO</span>
-        <span class="ptag email">Email</span>
-      </div>
-    </div>
+  <!-- ── SLIDE 2: Login ── -->
+  <div class="slide" id="slide2">
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="card-glow"></div>
+        <div class="card-line"></div>
 
-    <button class="google-btn" id="loginBtn" onclick="handleLogin()">
-      <svg class="google-icon" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      <span data-i18n="login.btn">Google bilan kirish</span>
-    </button>
+        <button class="back-btn" onclick="goSlide(0)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span data-i18n="onb.back">Orqaga</span>
+        </button>
 
-    <div class="error-msg" id="errorMsg"></div>
+        <div class="logo">TARGEET</div>
+        <div class="logo-sub" data-i18n="login.sub">Multi-Platform Analytics</div>
 
-    <div class="trust-row">
-      <div class="trust-item">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span data-i18n="login.trust1">Xavfsiz</span>
-      </div>
-      <div class="trust-item">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <span data-i18n="login.trust2">Ma'lumotlar himoyalangan</span>
-      </div>
-      <div class="trust-item">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span data-i18n="login.trust3">Real vaqt</span>
+        <div class="tagline" data-i18n-html="login.tagline">Reklamangizni<br>nazorat qiling</div>
+        <div class="tagline-sub" data-i18n-html="login.desc">
+          Barcha reklamalarni bir joyda kuzating.<br>
+          Har bir so'm qaerga ketganini ko'ring.
+        </div>
+
+        <div class="platform-scroll">
+          <div class="platform-track">
+            <span class="ptag meta">Meta Ads</span>
+            <span class="ptag google">Google Ads</span>
+            <span class="ptag yandex">Yandex Direct</span>
+            <span class="ptag tg">Telegram Ads</span>
+            <span class="ptag yt">YouTube</span>
+            <span class="ptag ig">Instagram</span>
+            <span class="ptag seo">SEO</span>
+            <span class="ptag email">Email</span>
+            <span class="ptag meta">Meta Ads</span>
+            <span class="ptag google">Google Ads</span>
+            <span class="ptag yandex">Yandex Direct</span>
+            <span class="ptag tg">Telegram Ads</span>
+            <span class="ptag yt">YouTube</span>
+            <span class="ptag ig">Instagram</span>
+            <span class="ptag seo">SEO</span>
+            <span class="ptag email">Email</span>
+          </div>
+        </div>
+
+        <button class="google-btn" id="loginBtn" onclick="handleLogin()">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          <span data-i18n="login.btn">Google bilan kirish</span>
+        </button>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div class="trust-row">
+          <div class="trust-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span data-i18n="login.trust1">Xavfsiz</span>
+          </div>
+          <div class="trust-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <span data-i18n="login.trust2">Ma'lumotlar himoyalangan</span>
+          </div>
+          <div class="trust-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span data-i18n="login.trust3">Real vaqt</span>
+          </div>
+        </div>
+
+        <div class="preview-link">
+          <button onclick="goSlide(2)" data-i18n="onb.preview_link">Avval ichkarini ko'rish →</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- ── SLIDE 3: Dashboard Preview ── -->
+  <div class="slide" id="slide3">
+    <div class="s3-inner">
+      <div class="s3-label">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span data-i18n="onb.preview_tag">Dashboard Preview</span>
+      </div>
+
+      <h2 class="s3-headline">
+        <span data-i18n="onb.prev_hl1">Platforma ichida</span><br>
+        <span data-i18n="onb.prev_hl2">nima <span style="color:#c8ff00">bor?</span></span>
+      </h2>
+      <p class="s3-sub" data-i18n="onb.prev_sub">
+        Excel faylni yuklang — dashboard avtomatik to'ldiriladi. Barcha ko'rsatkichlar real vaqtda yangilanadi.
+      </p>
+
+      <!-- Dashboard Mockup -->
+      <div class="db-mockup">
+        <!-- Topbar -->
+        <div class="db-topbar">
+          <div class="db-topbar-left">
+            <div class="db-mock-dot r"></div>
+            <div class="db-mock-dot y"></div>
+            <div class="db-mock-dot g"></div>
+            <span class="db-mock-title">TARGEET</span>
+          </div>
+          <div class="db-topbar-right">
+            <span class="db-mock-badge blue">Meta Ads</span>
+            <span class="db-mock-badge green">Google Ads</span>
+            <span class="db-mock-badge blue">Telegram</span>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="db-body">
+          <!-- Sidebar -->
+          <div class="db-sidebar">
+            <div class="db-nav-dot active">📊</div>
+            <div class="db-nav-dot">📁</div>
+            <div class="db-nav-dot">📈</div>
+            <div class="db-nav-dot">⚙️</div>
+          </div>
+
+          <!-- Main -->
+          <div class="db-main">
+            <!-- KPIs -->
+            <div class="db-kpis">
+              <div class="db-kpi">
+                <div class="db-kpi-label" data-i18n="kpi.spend">Xarajat</div>
+                <div class="db-kpi-value">$2,470</div>
+                <div class="db-kpi-change up">↑ 12%</div>
+              </div>
+              <div class="db-kpi">
+                <div class="db-kpi-label" data-i18n="kpi.results">Natijalar</div>
+                <div class="db-kpi-value">847</div>
+                <div class="db-kpi-change up">↑ 8%</div>
+              </div>
+              <div class="db-kpi">
+                <div class="db-kpi-label" data-i18n="kpi.cpl">CPL</div>
+                <div class="db-kpi-value">$2.91</div>
+                <div class="db-kpi-change up">↓ 18%</div>
+              </div>
+              <div class="db-kpi">
+                <div class="db-kpi-label" data-i18n="kpi.impressions">Impressions</div>
+                <div class="db-kpi-value">399K</div>
+                <div class="db-kpi-change up">↑ 31%</div>
+              </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="db-charts">
+              <!-- Bar chart -->
+              <div class="db-chart-box">
+                <div class="db-chart-title" data-i18n="chart.cpl">CPL tahlil — kampaniya bo'yicha</div>
+                <div class="fake-bars">
+                  <div class="fb blue"   style="height:38px"></div>
+                  <div class="fb accent" style="height:52px"></div>
+                  <div class="fb blue"   style="height:29px"></div>
+                  <div class="fb amber"  style="height:44px"></div>
+                  <div class="fb green"  style="height:35px"></div>
+                  <div class="fb blue"   style="height:48px"></div>
+                  <div class="fb purple" style="height:22px"></div>
+                  <div class="fb blue"   style="height:40px"></div>
+                  <div class="fb accent" style="height:52px"></div>
+                  <div class="fb red"    style="height:18px"></div>
+                </div>
+              </div>
+              <!-- Line chart -->
+              <div class="db-chart-box">
+                <div class="db-chart-title" data-i18n="chart.spend">Xarajat dinamikasi</div>
+                <div class="fake-line">
+                  <svg viewBox="0 0 200 52" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#c8ff00" stop-opacity="0.25"/>
+                        <stop offset="100%" stop-color="#c8ff00" stop-opacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,42 C20,38 40,30 60,26 S100,14 120,18 S160,10 200,6" fill="none" stroke="#c8ff00" stroke-width="1.8" opacity="0.8"/>
+                    <path d="M0,42 C20,38 40,30 60,26 S100,14 120,18 S160,10 200,6 L200,52 L0,52 Z" fill="url(#lg1)"/>
+                    <!-- Blue secondary line -->
+                    <path d="M0,46 C30,44 50,40 80,38 S130,34 160,36 S180,32 200,28" fill="none" stroke="#3b82f6" stroke-width="1.2" opacity="0.5"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table -->
+            <div class="db-table">
+              <div class="db-tr header">
+                <div class="db-td" data-i18n="tbl.campaign">Kampaniya</div>
+                <div class="db-td" data-i18n="tbl.spend">Xarajat</div>
+                <div class="db-td" data-i18n="tbl.cpl">CPL</div>
+                <div class="db-td" data-i18n="tbl.status">Holat</div>
+              </div>
+              <div class="db-tr">
+                <div class="db-td name">Meta — Leads kampaniya</div>
+                <div class="db-td">$820</div>
+                <div class="db-td green">$2.14</div>
+                <div class="db-td"><span class="db-status on">Faol</span></div>
+              </div>
+              <div class="db-tr">
+                <div class="db-td name">Google Search — Brand</div>
+                <div class="db-td">$540</div>
+                <div class="db-td green">$1.89</div>
+                <div class="db-td"><span class="db-status on">Faol</span></div>
+              </div>
+              <div class="db-tr">
+                <div class="db-td name">Telegram — Retarget</div>
+                <div class="db-td">$310</div>
+                <div class="db-td red">$5.20</div>
+                <div class="db-td"><span class="db-status off">To'xtatilgan</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature bullets -->
+      <div class="s3-features">
+        <div class="s3-feat">
+          <div class="s3-feat-dot"></div>
+          <span data-i18n="onb.f1">Excel yuklash — avtomatik tahlil</span>
+        </div>
+        <div class="s3-feat">
+          <div class="s3-feat-dot"></div>
+          <span data-i18n="onb.f2">8+ reklama platformasi</span>
+        </div>
+        <div class="s3-feat">
+          <div class="s3-feat-dot"></div>
+          <span data-i18n="onb.f3">AI tahlilchi</span>
+        </div>
+        <div class="s3-feat">
+          <div class="s3-feat-dot"></div>
+          <span data-i18n="onb.f4">Real vaqtli ma'lumotlar</span>
+        </div>
+      </div>
+
+      <button class="s3-cta" id="s3LoginBtn" onclick="goSlide(1)">
+        <span data-i18n="onb.start">Boshlash — Kirish</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="s3-back" onclick="goSlide(0)" data-i18n="onb.back">← Orqaga</button>
+    </div>
+  </div>
+
+</div><!-- /slides-outer -->
 
 <!-- Firebase -->
 <script src="assets/firebase.js"></script>
@@ -494,12 +995,8 @@ body {
   }
   resize();
   window.addEventListener("resize", resize);
-  window.addEventListener("mousemove", e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-  });
+  window.addEventListener("mousemove", e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
-  // ── GLOBE DOTS ────────────────────────────────────────────
   const GLOBE_R   = Math.min(W, H) * 0.38;
   const DOT_COUNT = 280;
   let rotY = 0;
@@ -513,16 +1010,12 @@ body {
       z:  r * Math.sin(phi) * Math.sin(theta)
     };
   }
-
-  // Random globe points
   const dots = [];
   for (let i = 0; i < DOT_COUNT; i++) {
     const lat = (Math.random() - 0.5) * 160;
     const lng = (Math.random() - 0.5) * 360;
     dots.push({ lat, lng, size: Math.random() * 1.4 + 0.4 });
   }
-
-  // Grid lines (latitude/longitude)
   const gridLines = [];
   for (let lat = -80; lat <= 80; lat += 20) {
     const pts = [];
@@ -534,70 +1027,42 @@ body {
     for (let lat = -90; lat <= 90; lat += 3) pts.push({ lat, lng });
     gridLines.push(pts);
   }
-
-  // ── PARTICLES ─────────────────────────────────────────────
   const particles = [];
   for (let i = 0; i < 60; i++) {
     particles.push({
-      x:  Math.random() * 1920,
-      y:  Math.random() * 1080,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      r:  Math.random() * 1.5 + 0.3,
-      a:  Math.random() * 0.4 + 0.1
+      x:  Math.random() * 1920, y: Math.random() * 1080,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      r:  Math.random() * 1.5 + 0.3, a: Math.random() * 0.4 + 0.1
     });
   }
 
   function project3D(x, y, z, cx, cy) {
-    // Rotate Y axis slowly + mouse tilt
     const mx   = (mouse.x / W - 0.5) * 0.3;
     const my   = (mouse.y / H - 0.5) * 0.2;
     const ry   = rotY + mx;
     const cosY = Math.cos(ry), sinY = Math.sin(ry);
     const cosX = Math.cos(my), sinX = Math.sin(my);
-
     let nx = x * cosY + z * sinY;
     let nz = -x * sinY + z * cosY;
     let ny = y * cosX - nz * sinX;
     nz     = y * sinX + nz * cosX;
-
-    const fov  = 900;
+    const fov   = 900;
     const scale = fov / (fov + nz);
-    return {
-      sx: cx + nx * scale,
-      sy: cy + ny * scale,
-      scale,
-      visible: nz < 0
-    };
+    return { sx: cx + nx * scale, sy: cy + ny * scale, scale, visible: nz < 0 };
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-
-    const cx = W / 2;
-    const cy = H / 2;
-
-    // Dark radial gradient base
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, GLOBE_R * 1.6);
-    grad.addColorStop(0, "rgba(10,15,25,0.0)");
-    grad.addColorStop(1, "rgba(5,6,8,0.0)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-
-    // Glow behind globe
+    const cx = W / 2, cy = H / 2;
     const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, GLOBE_R);
-    glow.addColorStop(0, "rgba(30,60,120,0.12)");
-    glow.addColorStop(0.5, "rgba(10,30,80,0.06)");
+    glow.addColorStop(0, "rgba(30,60,120,0.1)");
+    glow.addColorStop(0.5, "rgba(10,30,80,0.05)");
     glow.addColorStop(1, "transparent");
     ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, GLOBE_R * 1.2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, GLOBE_R * 1.2, 0, Math.PI * 2); ctx.fill();
 
-    // ── Grid lines ──────────────────────────────────────────
     gridLines.forEach(line => {
-      ctx.beginPath();
-      let started = false;
+      ctx.beginPath(); let started = false;
       line.forEach(pt => {
         const p3 = latLngToXYZ(pt.lat, pt.lng, GLOBE_R);
         const pr = project3D(p3.x, p3.y, p3.z, cx, cy);
@@ -605,125 +1070,134 @@ body {
         if (!started) { ctx.moveTo(pr.sx, pr.sy); started = true; }
         else ctx.lineTo(pr.sx, pr.sy);
       });
-      ctx.strokeStyle = "rgba(100,160,255,0.06)";
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
+      ctx.strokeStyle = "rgba(100,160,255,0.055)";
+      ctx.lineWidth = 0.5; ctx.stroke();
     });
 
-    // ── Globe dots ──────────────────────────────────────────
     dots.forEach(d => {
       const p3 = latLngToXYZ(d.lat, d.lng, GLOBE_R);
       const pr = project3D(p3.x, p3.y, p3.z, cx, cy);
       if (!pr.visible) return;
-
       const brightness = (pr.scale - 0.7) * 2;
-      const isAccent   = Math.random() < 0.002; // rare green dots
-
-      ctx.beginPath();
-      ctx.arc(pr.sx, pr.sy, d.size * pr.scale, 0, Math.PI * 2);
-
-      if (isAccent) {
-        ctx.fillStyle = `rgba(200,255,0,${brightness * 0.9})`;
-        // Glow
-        ctx.shadowColor = "#c8ff00";
-        ctx.shadowBlur  = 8;
-      } else {
-        ctx.fillStyle = `rgba(100,160,255,${brightness * 0.5})`;
-        ctx.shadowBlur = 0;
-      }
-      ctx.fill();
-      ctx.shadowBlur = 0;
+      const isAccent   = Math.random() < 0.002;
+      ctx.beginPath(); ctx.arc(pr.sx, pr.sy, d.size * pr.scale, 0, Math.PI * 2);
+      if (isAccent) { ctx.fillStyle = `rgba(200,255,0,${brightness * 0.9})`; ctx.shadowColor = "#c8ff00"; ctx.shadowBlur = 8; }
+      else { ctx.fillStyle = `rgba(100,160,255,${brightness * 0.5})`; ctx.shadowBlur = 0; }
+      ctx.fill(); ctx.shadowBlur = 0;
     });
 
-    // Globe border glow
-    ctx.beginPath();
-    ctx.arc(cx, cy, GLOBE_R, 0, Math.PI * 2);
-    ctx.strokeStyle = "rgba(80,120,255,0.08)";
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, GLOBE_R, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(80,120,255,0.07)"; ctx.lineWidth = 1; ctx.stroke();
 
-    // ── Floating particles ───────────────────────────────────
     particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.x < 0) p.x = W;
-      if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H;
-      if (p.y > H) p.y = 0;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(150,180,255,${p.a})`;
-      ctx.fill();
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(150,180,255,${p.a})`; ctx.fill();
     });
-
-    // Connect nearby particles
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
         const dist = Math.sqrt(dx*dx + dy*dy);
         if (dist < 120) {
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(100,140,255,${0.08 * (1 - dist/120)})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
+          ctx.strokeStyle = `rgba(100,140,255,${0.07 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5; ctx.stroke();
         }
       }
     }
-
-    // Slow globe rotation
     rotY += 0.0015;
-
     requestAnimationFrame(draw);
   }
-
   draw();
 })();
 </script>
 
-<script src="js/i18n.js"></script>
-<style>
-.login-lang{position:fixed;top:16px;right:16px;z-index:200;display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
-.login-lang .lang-btn{padding:5px 10px;font-size:11px;font-weight:600;background:transparent;border:none;cursor:pointer;color:rgba(240,240,240,.5);font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
-.login-lang .lang-btn:hover{color:#f0f0f0;}
-.login-lang .lang-btn.active{background:rgba(200,255,0,.12);color:#c8ff00;}
-</style>
-<div class="login-lang">
-  <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
-  <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
-</div>
+<!-- Slide navigation -->
+<script>
+let _cur = 0;
+const SLIDES = document.getElementById("slidesOuter");
+const DOTS   = document.querySelectorAll(".dot");
 
-<style>
-.sup-btn{position:fixed;bottom:20px;right:20px;z-index:200;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#9ca3af;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
-.sup-btn:hover{border-color:#c8ff00;color:#c8ff00;}
-.sup-popup{position:fixed;bottom:64px;right:20px;z-index:199;background:rgba(20,22,25,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px;width:200px;display:none;flex-direction:column;gap:8px;}
-.sup-popup.open{display:flex;}
-.sup-popup-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;margin-bottom:2px;}
-.sup-link{display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;text-decoration:none;padding:5px 6px;border-radius:7px;transition:background .12s,color .12s;}
-.sup-link:hover{background:rgba(255,255,255,.05);color:#f0f0f0;}
-.sup-divider{height:1px;background:rgba(255,255,255,.06);margin:2px 0;}
-</style>
-<!-- ── SUPPORT WIDGET ──────────────────────────────────────── -->
-<div class="sup-popup" id="supPopup">
-  <div class="sup-popup-title">EO Automation</div>
-  <a class="sup-link" href="https://t.me/eoutomation" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
-    Telegram kanal
-  </a>
-  <a class="sup-link" href="https://instagram.com/eo.automation" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-    Instagram
-  </a>
-  <div class="sup-divider"></div>
-  <div class="sup-popup-title">Xatolik bo'lsa</div>
-  <a class="sup-link" href="https://t.me/eoautomations" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
-    @eoautomations
-  </a>
-</div>
-<button class="sup-btn" onclick="document.getElementById('supPopup').classList.toggle('open')">?</button>
+function goSlide(n) {
+  _cur = Math.max(0, Math.min(2, n));
+  SLIDES.style.transform = `translateX(-${_cur * 100}vw)`;
+  DOTS.forEach((d, i) => d.classList.toggle("active", i === _cur));
+  // scroll slide to top
+  document.getElementById("slide" + (_cur + 1)).scrollTop = 0;
+}
+
+// Touch/swipe support
+let _tx = 0;
+document.addEventListener("touchstart", e => { _tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - _tx;
+  if (Math.abs(dx) > 60) goSlide(_cur + (dx < 0 ? 1 : -1));
+}, { passive: true });
+</script>
+
+<script src="js/i18n.js"></script>
+<script>
+// Add new i18n keys if not present — injected inline for onboarding keys
+if (window.I18n && window.I18n._addKeys) {
+  I18n._addKeys({
+    uz: {
+      'onb.tag':          'Marketing Analytics Platform',
+      'onb.who_pre':      'Bu platform',
+      'onb.who_hl':       'kimlar uchun?',
+      'onb.who_sub':      'Reklama xarajatlaringizni professional darajada nazorat qilish — barcha platformalar bir joyda',
+      'onb.a1_title':     'Info-biznes Producerlar',
+      'onb.a1_desc':      "Kurs, webinar, coaching sotasizmi? Har bir reklama so'miningiz qayerga ketayotganini kuzating va samarasizlarni o'chiring.",
+      'onb.a2_title':     'Biznes Egalari',
+      'onb.a2_desc':      "Marketingga sarflangan byudjetni nazorat qiling. Qaysi kanal eng ko'p foyda keltirishini bir nazar bilan ko'ring.",
+      'onb.a3_title':     'Marketologlar',
+      'onb.a3_desc':      "Meta, Google, Yandex, Telegram — barcha platformalar hisobotini bir dashboardda tahlil qiling va vaqtingizni tejang.",
+      'onb.a4_title':     'Targetologlar',
+      'onb.a4_desc':      "Mijozlarga professional vizual hisobot bering. Excelni yuklang — dashboard avtomatik yaratiladi.",
+      'onb.next':         'Davom etish',
+      'onb.back':         'Orqaga',
+      'onb.preview_link': 'Avval ichkarini ko\'rish →',
+      'onb.preview_tag':  'Dashboard Preview',
+      'onb.prev_hl1':     'Platforma ichida',
+      'onb.prev_hl2':     'nima bor?',
+      'onb.prev_sub':     "Excel faylni yuklang — dashboard avtomatik to'ldiriladi. Barcha ko'rsatkichlar real vaqtda yangilanadi.",
+      'onb.f1':           'Excel yuklash — avtomatik tahlil',
+      'onb.f2':           '8+ reklama platformasi',
+      'onb.f3':           'AI tahlilchi',
+      'onb.f4':           "Real vaqtli ma'lumotlar",
+      'onb.start':        'Boshlash — Kirish',
+    },
+    ru: {
+      'onb.tag':          'Платформа маркетинговой аналитики',
+      'onb.who_pre':      'Для кого',
+      'onb.who_hl':       'эта платформа?',
+      'onb.who_sub':      'Профессиональный контроль рекламных расходов — все платформы в одном месте',
+      'onb.a1_title':     'Продюсеры инфобизнеса',
+      'onb.a1_desc':      'Продаёте курсы, вебинары, коучинг? Отслеживайте эффективность каждого рубля рекламы.',
+      'onb.a2_title':     'Владельцы бизнеса',
+      'onb.a2_desc':      'Контролируйте маркетинговый бюджет. Видите, какой канал приносит больше всего прибыли.',
+      'onb.a3_title':     'Маркетологи',
+      'onb.a3_desc':      'Meta, Google, Яндекс, Telegram — анализируйте отчёты всех платформ в одном дашборде.',
+      'onb.a4_title':     'Таргетологи',
+      'onb.a4_desc':      'Давайте клиентам профессиональные визуальные отчёты. Загружайте Excel — дашборд создаётся автоматически.',
+      'onb.next':         'Продолжить',
+      'onb.back':         'Назад',
+      'onb.preview_link': 'Сначала посмотреть внутри →',
+      'onb.preview_tag':  'Превью дашборда',
+      'onb.prev_hl1':     'Что внутри',
+      'onb.prev_hl2':     'платформы?',
+      'onb.prev_sub':     'Загрузите Excel — дашборд заполнится автоматически. Все показатели обновляются в реальном времени.',
+      'onb.f1':           'Загрузка Excel — авто-анализ',
+      'onb.f2':           '8+ рекламных платформ',
+      'onb.f3':           'AI-аналитик',
+      'onb.f4':           'Данные в реальном времени',
+      'onb.start':        'Начать — Войти',
+    }
+  });
+}
+</script>
 </body>
 </html>
