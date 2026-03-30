@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marketing Dashboard — Kirish</title>
+<title>Targeet — Kirish</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -136,6 +136,42 @@ body {
   margin-bottom: 36px;
   line-height: 1.6;
 }
+
+/* ── PLATFORM SCROLL ── */
+.platform-scroll {
+  overflow: hidden;
+  margin: 0 -40px 28px;
+  mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+.platform-track {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  animation: scrollPlatforms 18s linear infinite;
+}
+@keyframes scrollPlatforms {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ptag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  border: 1px solid;
+}
+.ptag.meta    { color: #3b82f6; border-color: rgba(59,130,246,0.3);  background: rgba(59,130,246,0.08); }
+.ptag.google  { color: #f59e0b; border-color: rgba(245,158,11,0.3);  background: rgba(245,158,11,0.08); }
+.ptag.yandex  { color: #ef4444; border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.08); }
+.ptag.tg      { color: #06b6d4; border-color: rgba(6,182,212,0.3);   background: rgba(6,182,212,0.08); }
+.ptag.yt      { color: #ef4444; border-color: rgba(239,68,68,0.3);   background: rgba(239,68,68,0.08); }
+.ptag.ig      { color: #ec4899; border-color: rgba(236,72,153,0.3);  background: rgba(236,72,153,0.08); }
+.ptag.seo     { color: #22c55e; border-color: rgba(34,197,94,0.3);   background: rgba(34,197,94,0.08); }
+.ptag.email   { color: #a78bfa; border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
 
 /* ── GOOGLE BUTTON ── */
 .google-btn {
@@ -316,12 +352,34 @@ body {
     <div class="card-line"></div>
 
     <div class="logo">MARKETING DASHBOARD</div>
-    <div class="logo-sub">Meta Ads Analytics</div>
+    <div class="logo-sub">Multi-Platform Analytics</div>
 
     <div class="tagline">Reklamangizni<br>nazorat qiling</div>
     <div class="tagline-sub">
-      Meta Ads kampaniyalaringizni real vaqtda kuzating.<br>
+      Barcha reklamalarni bir joyda kuzating.<br>
       Har bir so'm qaerga ketganini ko'ring.
+    </div>
+
+    <div class="platform-scroll">
+      <div class="platform-track">
+        <span class="ptag meta">Meta Ads</span>
+        <span class="ptag google">Google Ads</span>
+        <span class="ptag yandex">Yandex Direct</span>
+        <span class="ptag tg">Telegram Ads</span>
+        <span class="ptag yt">YouTube</span>
+        <span class="ptag ig">Instagram</span>
+        <span class="ptag seo">SEO</span>
+        <span class="ptag email">Email</span>
+        <!-- duplicate for infinite loop -->
+        <span class="ptag meta">Meta Ads</span>
+        <span class="ptag google">Google Ads</span>
+        <span class="ptag yandex">Yandex Direct</span>
+        <span class="ptag tg">Telegram Ads</span>
+        <span class="ptag yt">YouTube</span>
+        <span class="ptag ig">Instagram</span>
+        <span class="ptag seo">SEO</span>
+        <span class="ptag email">Email</span>
+      </div>
     </div>
 
     <button class="google-btn" id="loginBtn" onclick="handleLogin()">
