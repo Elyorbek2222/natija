@@ -285,6 +285,127 @@ header {
   padding: 2px 7px; border-radius: 4px; margin-left: auto;
 }
 
+/* ── PAYMENT MODAL ── */
+.pay-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(4,5,7,0.88);
+  backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; padding: 16px;
+}
+.pay-modal-overlay.open { display: flex; }
+.pay-modal {
+  background: rgba(14,16,20,0.98);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 28px 26px;
+  width: 100%; max-width: 400px;
+  position: relative;
+  animation: modalIn 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes modalIn {
+  from { opacity:0; transform: scale(0.94) translateY(12px); }
+  to   { opacity:1; transform: scale(1)    translateY(0); }
+}
+.pay-modal::before {
+  content: '';
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.6), transparent);
+}
+.modal-close {
+  position: absolute; top: 14px; right: 16px;
+  background: transparent; border: none;
+  color: var(--muted); font-size: 20px; cursor: pointer;
+  line-height: 1; padding: 2px 6px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+.modal-step {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(200,255,0,0.12); border: 1px solid rgba(200,255,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  flex-shrink: 0;
+}
+.step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+.modal-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800; color: var(--text);
+  margin-bottom: 4px;
+}
+.modal-plan-label {
+  font-size: 12px; color: var(--muted); margin-bottom: 18px;
+}
+
+/* Card rows */
+.card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.card-row {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.card-bank {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--muted);
+  min-width: 52px;
+}
+.card-num {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 15px; font-weight: 700; color: var(--text);
+  letter-spacing: 0.08em; flex: 1;
+}
+.card-copy {
+  background: transparent; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 7px; padding: 4px 10px;
+  font-size: 11px; font-weight: 600; color: var(--muted);
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.card-copy:hover { border-color: var(--accent); color: var(--accent); }
+.card-copy.copied { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.07); }
+
+.modal-amount {
+  text-align: center;
+  padding: 10px 14px;
+  background: rgba(200,255,0,0.05);
+  border: 1px solid rgba(200,255,0,0.12);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.modal-amount .amt-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+.modal-amount .amt-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; color: var(--accent); line-height: 1;
+}
+.modal-amount .amt-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.modal-note {
+  font-size: 11px; color: var(--muted);
+  text-align: center; line-height: 1.55;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+}
+
+.modal-tg-btn {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; padding: 13px 16px; border: none; border-radius: 11px;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #229ED9, #1a7db0);
+  color: #fff; box-shadow: 0 3px 14px rgba(34,158,217,0.28);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.modal-tg-btn:hover  { opacity: 0.92; }
+.modal-tg-btn:active { transform: scale(0.98); }
+
 /* urgency */
 .urgency {
   margin-top: 12px; padding: 8px 11px;
@@ -529,6 +650,56 @@ header {
 
 </div>
 
+<!-- ══════════════════════════════════════
+     PAYMENT MODAL
+     ══════════════════════════════════════ -->
+<div class="pay-modal-overlay" id="payModal" onclick="if(event.target===this)closeModal()">
+  <div class="pay-modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+
+    <!-- Steps indicator -->
+    <div class="modal-step">
+      <div class="step-num">1</div>
+      <div class="step-line"></div>
+      <div class="step-num" id="step2num" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--muted)">2</div>
+    </div>
+
+    <div class="modal-title">Karta raqamiga o'tkazing</div>
+    <div class="modal-plan-label" id="modalPlanLabel">Oylik · 200 000 UZS</div>
+
+    <!-- Amount -->
+    <div class="modal-amount">
+      <div class="amt-label">To'lov miqdori</div>
+      <div class="amt-val" id="modalAmount">200 000 UZS</div>
+      <div class="amt-sub">bir martalik · obuna yo'q</div>
+    </div>
+
+    <!-- Cards -->
+    <div class="card-list">
+      <div class="card-row">
+        <div class="card-bank" style="color:#3b82f6">Uzum<br>Bank</div>
+        <div class="card-num" id="card1num">8600 ____ ____ ____</div>
+        <button class="card-copy" onclick="copyCard(this,'card1num')">Nusxa</button>
+      </div>
+      <div class="card-row">
+        <div class="card-bank" style="color:#22c55e">Kapital<br>Bank</div>
+        <div class="card-num" id="card2num">9860 ____ ____ ____</div>
+        <button class="card-copy" onclick="copyCard(this,'card2num')">Nusxa</button>
+      </div>
+    </div>
+
+    <div class="modal-note">
+      💳 Plastik karta orqali pul o'tkazgach, quyidagi tugmani bosing.<br>
+      Telegram chatda <b style="color:var(--text)">to'lov chekini (skrinshotini)</b> yuboring.
+    </div>
+
+    <button class="modal-tg-btn" id="modalTgBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+      Chekni Telegramga yuborish →
+    </button>
+  </div>
+</div>
+
 <!-- ── FIREBASE ── -->
 <script src="assets/firebase.js"></script>
 <script type="module">
@@ -564,16 +735,64 @@ header {
 
   window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
 
+  // ── CARD NUMBERS — faqat shu yerda o'zgartiring ──
+  const CARDS = [
+    { bank: "Uzum Bank",    elemId: "card1num", num: "8600 0000 0000 0000" },
+    { bank: "Kapital Bank", elemId: "card2num", num: "9860 0000 0000 0000" },
+  ];
+
+  // Fill card numbers on load
+  CARDS.forEach(c => {
+    const el = document.getElementById(c.elemId);
+    if (el) el.textContent = c.num;
+  });
+
+  let _activePlan = "monthly";
+
   window.openTelegram = (plan) => {
     if (!currentUser) return;
+    _activePlan = plan;
+
+    // Update modal labels
+    const isMonthly = plan === "monthly";
+    document.getElementById("modalPlanLabel").textContent =
+      (isMonthly ? "Oylik" : "3 Oylik") + " · " + PRICES[plan].label;
+    document.getElementById("modalAmount").textContent = PRICES[plan].label;
+
+    // Wire Telegram button
+    document.getElementById("modalTgBtn").onclick = () => sendToTelegram(plan);
+
+    // Open modal
+    document.getElementById("payModal").classList.add("open");
+    document.body.style.overflow = "hidden";
+  };
+
+  window.closeModal = () => {
+    document.getElementById("payModal").classList.remove("open");
+    document.body.style.overflow = "";
+  };
+
+  window.copyCard = (btn, elemId) => {
+    const num = document.getElementById(elemId)?.textContent?.trim();
+    if (!num) return;
+    navigator.clipboard.writeText(num.replace(/\s/g, "")).then(() => {
+      btn.textContent = "✓ Nusxalandi";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = "Nusxa"; btn.classList.remove("copied"); }, 2000);
+    });
+  };
+
+  function sendToTelegram(plan) {
+    if (!currentUser) return;
     const msg = encodeURIComponent(
-      `Salom! To'lov qilmoqchiman.\n\n` +
+      `Salom! To'lov o'tkazdim, chekni yuboraman.\n\n` +
       `👤 ${currentUser.displayName || "—"}\n` +
       `📧 ${currentUser.email}\n` +
       `📦 ${plan === "monthly" ? "Oylik" : "3 Oylik"} — ${PRICES[plan].label}\n` +
-      `🔑 UID: ${currentUser.uid}\n\nTo'lov chekini yuboraman.`
+      `🔑 UID: ${currentUser.uid}`
     );
     window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${msg}`, "_blank");
+    closeModal();
   };
 
   window.checkPayment = async () => {
