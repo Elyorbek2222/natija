@@ -7,47 +7,48 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:      #080a0c;
-  --surface: #111417;
-  --card:    rgba(17,20,23,0.9);
-  --border:  #1e2226;
-  --accent:  #c8ff00;
-  --blue:    #3b82f6;
-  --green:   #22c55e;
-  --red:     #ef4444;
-  --amber:   #f59e0b;
-  --purple:  #a78bfa;
-  --text:    #f0f2f5;
-  --muted:   #6b7280;
-  --muted2:  #374151;
+  --bg:     #080a0c;
+  --card:   rgba(14,16,20,0.92);
+  --border: rgba(255,255,255,0.07);
+  --accent: #c8ff00;
+  --green:  #22c55e;
+  --blue:   #3b82f6;
+  --red:    #ef4444;
+  --amber:  #f59e0b;
+  --purple: #a78bfa;
+  --text:   #f0f2f5;
+  --muted:  #6b7280;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overflow-x: hidden; scroll-behavior: smooth; }
+html, body { overflow-x: hidden; }
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
+  /* subtle radial glow, not distracting */
+  background-image:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(200,255,0,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(59,130,246,0.025) 0%, transparent 60%);
 }
 
-/* ── 3D DATA GRID BG ── */
+/* ── SUBTLE PARTICLE BG ── */
 #bgCanvas {
-  position: fixed; inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0; pointer-events: none;
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0.45;
 }
 
 /* ── LOADING ── */
 .loading-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(8,10,12,0.96);
+  background: rgba(8,10,12,0.97);
   align-items: center; justify-content: center;
   flex-direction: column; gap: 14px; z-index: 500;
 }
 .loading-overlay.show { display: flex; }
 .spinner {
-  width: 36px; height: 36px;
-  border: 2px solid rgba(200,255,0,0.15);
+  width: 34px; height: 34px;
+  border: 2px solid rgba(200,255,0,0.12);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -55,350 +56,299 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 13px; color: var(--muted); }
 
-/* ── HEADER ── */
+/* ════════════════════════════════════════
+   HEADER — logo + mini orbit strip + user
+   ════════════════════════════════════════ */
 header {
   position: relative; z-index: 10;
-  background: rgba(8,10,12,0.7);
+  height: 62px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 24px;
+  background: rgba(8,10,12,0.85);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  padding: 0 28px; height: 58px;
-  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
+
+/* Left: logo */
 .logo-group { display: flex; flex-direction: column; line-height: 1; }
 .logo-name {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 24px; font-weight: 900;
+  font-size: 22px; font-weight: 900;
   color: var(--accent); letter-spacing: 0.05em;
 }
-.logo-tagline {
+.logo-sub {
   font-size: 9px; font-weight: 600;
   letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--muted); margin-top: 1px;
 }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.user-name { font-size: 13px; color: var(--muted); }
+
+/* Center: mini orbit */
+.mini-orbit-wrap {
+  position: relative;
+  width: 220px; height: 48px;
+  overflow: visible;
+}
+#miniOrbitCanvas {
+  position: absolute; inset: -10px;
+  width: calc(100% + 20px); height: calc(100% + 20px);
+  pointer-events: none;
+}
+.mini-hub {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle at 38% 38%, #182200, var(--bg));
+  border: 1px solid rgba(200,255,0,0.35);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 12px rgba(200,255,0,0.15);
+  z-index: 5;
+}
+.mini-planet {
+  position: absolute; top: 50%; left: 50%;
+  width: 30px; height: 30px;
+  margin: -15px 0 0 -15px;
+  border-radius: 8px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 1px;
+  border: 1px solid rgba(255,255,255,0.06);
+  font-size: 10px; font-weight: 800;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.mini-planet-lbl {
+  font-size: 4.5px; font-weight: 700; opacity: 0.8;
+  letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
+}
+
+/* Right: user */
+.header-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.user-name { font-size: 12px; color: var(--muted); }
 .logout-btn {
-  padding: 6px 14px;
-  background: transparent; border: 1px solid var(--border);
-  border-radius: 8px; font-size: 12px; color: var(--muted);
+  padding: 5px 12px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 7px; font-size: 11px; color: var(--muted);
   cursor: pointer; font-family: 'Inter', sans-serif;
   transition: border-color 0.15s, color 0.15s;
 }
 .logout-btn:hover { border-color: var(--red); color: var(--red); }
 
-/* ── HERO ── */
-.hero {
+/* ════════════════════════════════════════
+   ABOVE THE FOLD — headline + pricing
+   ════════════════════════════════════════ */
+.above-fold {
   position: relative; z-index: 1;
   display: flex; flex-direction: column;
   align-items: center;
-  padding: 36px 24px 24px;
-  gap: 20px;
+  padding: 28px 20px 40px;
+  min-height: calc(100vh - 62px);
+  justify-content: center;
+  gap: 24px;
 }
 
-/* Orbit */
-.orbit-wrap {
-  position: relative;
-  width: 440px; height: 220px;
-  flex-shrink: 0;
+/* Headline */
+.headline-block { text-align: center; }
+.hl-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
 }
-#orbitCanvas {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-}
-.hub {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px; height: 60px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 38%, #1a2200, var(--bg));
-  border: 1.5px solid rgba(200,255,0,0.4);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 100;
-  box-shadow: 0 0 24px rgba(200,255,0,0.2), 0 0 60px rgba(200,255,0,0.06);
-}
-.hub-ring {
-  position: absolute; border-radius: 50%;
-  border: 1px solid rgba(200,255,0,0.15);
-  animation: hub-pulse 2.4s ease-out infinite;
-}
-.hub-ring.r1 { inset: -12px; }
-.hub-ring.r2 { inset: -24px; animation-delay: 0.9s; border-color: rgba(200,255,0,0.06); }
-@keyframes hub-pulse {
-  0%   { transform: scale(1); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.planet {
-  position: absolute; top: 50%; left: 50%;
-  width: 54px; height: 54px;
-  margin: -27px 0 0 -27px;
-  border-radius: 12px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 3px;
-  border: 1px solid rgba(255,255,255,0.07);
-  backdrop-filter: blur(6px);
-  will-change: transform, opacity;
-  cursor: default;
-}
-.planet-icon  { font-size: 17px; font-weight: 800; line-height: 1; }
-.planet-label { font-size: 6.5px; font-weight: 700; letter-spacing: 0.05em; text-align: center; white-space: nowrap; opacity: 0.85; text-transform: uppercase; }
-
-/* Hero copy */
-.hero-copy { text-align: center; }
-.hero-eyebrow {
-  font-size: 10px; color: var(--muted);
-  letter-spacing: 0.14em; text-transform: uppercase;
-  margin-bottom: 8px;
-}
-.hero-title {
+.hl-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+.hl-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 38px; font-weight: 900;
-  color: var(--text); line-height: 1.1; margin-bottom: 10px;
+  font-size: 34px; font-weight: 900;
+  color: var(--text); line-height: 1.1; margin-bottom: 8px;
 }
-.hero-title em { color: var(--accent); font-style: normal; }
-.hero-sub {
-  font-size: 14px; color: var(--muted);
-  line-height: 1.65; max-width: 460px;
-}
-
-/* ── SOCIAL PROOF BAR ── */
-.proof-bar {
-  position: relative; z-index: 1;
-  display: flex; align-items: center; justify-content: center;
-  gap: 28px; flex-wrap: wrap;
-  padding: 14px 32px;
-  background: rgba(200,255,0,0.04);
-  border-top: 1px solid rgba(200,255,0,0.08);
-  border-bottom: 1px solid rgba(200,255,0,0.08);
-}
-.proof-item {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 12px; color: var(--muted);
-}
-.proof-val {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 20px; font-weight: 800; color: var(--accent);
-  line-height: 1;
-}
-.proof-sep { width: 1px; height: 28px; background: rgba(255,255,255,0.06); }
-
-/* ── MAIN ── */
-main {
-  position: relative; z-index: 1;
-  display: flex; flex-direction: column;
-  align-items: center;
-  padding: 32px 24px 80px; gap: 20px;
-}
-
-.section-label {
-  font-size: 10px; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--muted);
-  text-align: center;
-}
-.section-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 32px; font-weight: 800;
-  text-align: center; color: var(--text);
-  line-height: 1.1; margin-top: 4px;
-}
-.section-sub {
+.hl-title em { color: var(--accent); font-style: normal; }
+.hl-sub {
   font-size: 13px; color: var(--muted);
-  text-align: center; max-width: 380px;
-  line-height: 1.6; margin-top: 6px;
+  line-height: 1.6;
 }
 
-/* ── PLANS ROW ── */
+/* Proof chips */
+.proof-chips {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+}
+.proof-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  font-size: 11px; color: var(--muted);
+}
+.proof-chip b { color: var(--accent); }
+
+/* ── PRICING CARDS — the hero ── */
 .plans-row {
-  display: flex; gap: 18px;
+  display: flex; gap: 16px;
   flex-wrap: wrap; justify-content: center;
-  width: 100%;
+  width: 100%; max-width: 660px;
 }
 
-/* ── PLAN CARD ── */
 .plan-card {
   background: var(--card);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(24px);
   border: 1px solid var(--border);
-  border-radius: 20px; padding: 28px 24px 24px;
-  width: 300px; position: relative; overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  border-radius: 20px;
+  padding: 26px 22px 22px;
+  width: 306px; position: relative; overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
   transform-style: preserve-3d; will-change: transform;
 }
 .plan-card:hover {
-  border-color: rgba(200,255,0,0.2);
-  box-shadow: 0 0 40px rgba(200,255,0,0.06);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
 }
 .plan-card.popular {
-  border-color: rgba(200,255,0,0.35);
-  box-shadow: 0 0 40px rgba(200,255,0,0.08), 0 0 80px rgba(200,255,0,0.03);
+  border-color: rgba(200,255,0,0.3);
+  box-shadow: 0 0 50px rgba(200,255,0,0.07);
 }
+/* top gradient line */
 .plan-card::before {
   content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.6;
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.5), transparent);
 }
-.plan-card.popular::before { opacity: 1; }
-
-/* Card glow */
-.plan-card .card-glow {
-  position: absolute; top: -40px; left: 50%; transform: translateX(-50%);
+.plan-card.popular::before {
+  left: 0; right: 0;
+  background: linear-gradient(90deg, transparent, rgba(200,255,0,0.8), transparent);
+}
+/* glow top */
+.plan-card .cg {
+  position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
   width: 160px; height: 80px;
-  background: radial-gradient(ellipse, rgba(200,255,0,0.08), transparent 70%);
+  background: radial-gradient(ellipse, rgba(200,255,0,0.06), transparent 70%);
   pointer-events: none;
 }
 
 .popular-badge {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px 3px 8px;
-  background: var(--accent); color: #0a0c0e;
-  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--accent); color: #060709;
+  font-size: 9px; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.07em;
-  border-radius: 20px; margin-bottom: 16px;
+  margin-bottom: 14px;
 }
-
 .plan-name {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 22px; font-weight: 800; color: var(--text);
-  margin-bottom: 2px;
+  font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 2px;
 }
-.plan-tagline {
-  font-size: 12px; color: var(--muted);
-  margin-bottom: 14px; line-height: 1.5;
-}
+.plan-hook { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
 
-/* Price block */
-.price-block { margin-bottom: 4px; }
-.price-old {
-  font-size: 12px; color: var(--muted2);
-  text-decoration: line-through; margin-bottom: 2px;
-}
-.price-row { display: flex; align-items: flex-end; gap: 6px; }
-.price-amount {
+.price-old { font-size: 11px; color: rgba(255,255,255,0.2); text-decoration: line-through; margin-bottom: 2px; }
+.price-row { display: flex; align-items: flex-end; gap: 4px; line-height: 1; }
+.price-num {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 48px; font-weight: 900;
-  color: var(--accent); line-height: 1;
+  font-size: 44px; font-weight: 900; color: var(--accent);
 }
-.price-currency {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 20px; font-weight: 700; color: var(--accent);
-  padding-bottom: 4px;
-}
-.price-period { font-size: 12px; color: var(--muted); padding-bottom: 6px; }
-.price-day {
-  font-size: 11px; color: var(--green);
-  margin-bottom: 18px; margin-top: 3px;
-}
+.price-per { font-size: 12px; color: var(--muted); padding-bottom: 5px; }
+.price-day { font-size: 11px; color: var(--green); margin-top: 4px; margin-bottom: 16px; }
 
-/* Value prop chips */
-.plan-features {
-  list-style: none; margin-bottom: 22px;
-  display: flex; flex-direction: column; gap: 8px;
+/* features */
+.feats { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+.feats li {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; color: #c8d0db; line-height: 1.4;
 }
-.plan-features li {
-  font-size: 12.5px; color: #cbd5e1;
-  display: flex; align-items: flex-start; gap: 9px; line-height: 1.4;
-}
-.plan-features li .ico {
-  width: 16px; height: 16px; border-radius: 50%;
+.fi {
+  width: 15px; height: 15px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 1px;
-  font-size: 9px;
+  font-size: 8px; flex-shrink: 0; margin-top: 1px;
 }
-.plan-features li .ico.g { background: rgba(34,197,94,0.15); color: var(--green); }
-.plan-features li .ico.a { background: rgba(200,255,0,0.12); color: var(--accent); }
-.plan-features li .ico.b { background: rgba(59,130,246,0.15); color: var(--blue); }
-.plan-features li .ico.p { background: rgba(167,139,250,0.15); color: var(--purple); }
+.fi.g { background: rgba(34,197,94,0.14); color: var(--green); }
+.fi.a { background: rgba(200,255,0,0.10); color: var(--accent); }
+.fi.b { background: rgba(59,130,246,0.14); color: var(--blue); }
+.fi.p { background: rgba(167,139,250,0.14); color: var(--purple); }
 
-/* Pay buttons */
-.pay-btns { display: flex; flex-direction: column; gap: 8px; }
+/* pay buttons */
+.pay-btns { display: flex; flex-direction: column; gap: 7px; }
 .pay-btn {
-  display: flex; align-items: center; justify-content: center; gap: 9px;
-  width: 100%; padding: 13px 16px;
-  border: none; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px 14px; border: none; border-radius: 10px;
   font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
-  cursor: pointer; position: relative;
-  transition: opacity 0.15s, transform 0.1s;
+  cursor: pointer; transition: opacity 0.15s, transform 0.1s;
 }
-.pay-btn:hover  { opacity: 0.9; }
 .pay-btn:active { transform: scale(0.98); }
+.btn-tg {
+  background: linear-gradient(135deg, #229ED9 0%, #1a7db0 100%);
+  color: #fff; box-shadow: 0 3px 14px rgba(34,158,217,0.28);
+}
+.btn-tg:hover { opacity: 0.92; }
+.btn-dis {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.18); cursor: not-allowed;
+}
+.soon { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  background: rgba(255,255,255,0.05); color: var(--muted);
+  padding: 2px 7px; border-radius: 4px; margin-left: auto;
+}
 
-.btn-telegram {
-  background: linear-gradient(135deg, #229ED9, #1a7db0);
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(34,158,217,0.3);
-}
-.btn-payme, .btn-click {
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--muted2); cursor: not-allowed; opacity: 0.45;
-}
-.btn-payme:hover, .btn-click:hover { opacity: 0.45; }
-.soon-badge {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: rgba(255,255,255,0.06); color: var(--muted);
-  padding: 2px 7px; border-radius: 4px;
-  margin-left: auto; flex-shrink: 0;
-}
-.payme-logo { color: #00CCCC; font-weight: 800; font-size: 14px; }
-.click-logo  { color: #FF6B35; font-weight: 800; font-size: 14px; }
-
-/* Urgency strip */
+/* urgency */
 .urgency {
-  margin-top: 14px; padding: 9px 12px;
-  background: rgba(200,255,0,0.06);
-  border: 1px solid rgba(200,255,0,0.14);
-  border-radius: 9px;
-  font-size: 11px; color: var(--accent);
-  text-align: center; line-height: 1.45;
+  margin-top: 12px; padding: 8px 11px;
+  background: rgba(200,255,0,0.05);
+  border: 1px solid rgba(200,255,0,0.12);
+  border-radius: 8px;
+  font-size: 10.5px; color: rgba(200,255,0,0.8);
+  text-align: center; line-height: 1.5;
+}
+.urgency.amber {
+  background: rgba(245,158,11,0.05);
+  border-color: rgba(245,158,11,0.12);
+  color: rgba(245,158,11,0.8);
 }
 
-/* ── CHECK SECTION ── */
-.check-section {
-  text-align: center;
+/* ── CHECK + TRUST below fold ── */
+.below-fold {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 20px;
+  padding: 0 20px 72px;
+}
+
+.check-box {
   background: var(--card); backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  border-radius: 16px; padding: 24px 32px;
-  max-width: 420px; width: 100%;
+  border-radius: 16px; padding: 22px 28px;
+  max-width: 420px; width: 100%; text-align: center;
 }
-.check-icon {
-  width: 44px; height: 44px; border-radius: 50%;
+.check-ico {
+  width: 40px; height: 40px; border-radius: 50%;
   background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
   display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 12px;
+  margin: 0 auto 10px;
 }
-.check-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-.check-sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+.check-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+.check-sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
 .check-btn {
-  padding: 12px 32px;
+  padding: 11px 28px;
   background: transparent; border: 1px solid var(--accent);
-  border-radius: 10px; color: var(--accent);
+  border-radius: 9px; color: var(--accent);
   font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
   cursor: pointer; transition: background 0.15s, color 0.15s;
 }
-.check-btn:hover { background: var(--accent); color: #0a0c0e; }
-.check-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.check-result { margin-top: 12px; font-size: 13px; min-height: 18px; }
+.check-btn:hover { background: var(--accent); color: #060709; }
+.check-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.check-result { margin-top: 10px; font-size: 12px; min-height: 16px; }
 .check-result.ok    { color: var(--green); }
 .check-result.error { color: var(--red); }
 
-/* ── TRUST ROW ── */
 .trust-row {
-  display: flex; gap: 24px; flex-wrap: wrap;
-  justify-content: center;
-  padding: 0 24px;
+  display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
 }
 .trust-item {
-  display: flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--muted);
 }
-.trust-item svg { flex-shrink: 0; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 680px) {
-  .orbit-wrap { width: 340px; height: 180px; }
-  .hero-title { font-size: 28px; }
+  header { grid-template-columns: 1fr 1fr; }
+  .mini-orbit-wrap { display: none; }
+  .hl-title { font-size: 26px; }
   .plan-card { width: 100%; max-width: 340px; }
-  .proof-bar { gap: 16px; }
+  .above-fold { padding-top: 20px; }
 }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -412,216 +362,171 @@ main {
   <div class="loading-text">Yuklanmoqda...</div>
 </div>
 
-<!-- ── HEADER ── -->
+<!-- ══════════════════════════════════════
+     HEADER: logo | mini orbit | user
+     ══════════════════════════════════════ -->
 <header>
   <div class="logo-group">
     <div class="logo-name">TARGEET</div>
-    <div class="logo-tagline">Targeting Analiz</div>
+    <div class="logo-sub">Targeting Analiz</div>
   </div>
+
+  <!-- Mini orbit center -->
+  <div class="mini-orbit-wrap" id="miniOrbitWrap">
+    <canvas id="miniOrbitCanvas"></canvas>
+    <div class="mini-hub">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+           stroke="#c8ff00" stroke-width="2" stroke-linecap="round">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+    </div>
+    <!-- planets injected by JS -->
+  </div>
+
   <div class="header-right">
     <span class="user-name" id="userName"></span>
     <button class="logout-btn" onclick="handleLogout()">Chiqish</button>
   </div>
 </header>
 
-<!-- ── HERO: ORBIT TOP ── -->
-<section class="hero">
-  <!-- 3D Orbit -->
-  <div class="orbit-wrap" id="orbitContainer">
-    <canvas id="orbitCanvas"></canvas>
-    <div class="hub">
-      <div class="hub-ring r1"></div>
-      <div class="hub-ring r2"></div>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-           stroke="#c8ff00" stroke-width="1.8" stroke-linecap="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    </div>
-  </div>
+<!-- ══════════════════════════════════════
+     ABOVE THE FOLD — headline + pricing
+     ══════════════════════════════════════ -->
+<section class="above-fold">
 
   <!-- Headline -->
-  <div class="hero-copy">
-    <div class="hero-eyebrow">Meta · Google · Yandex · Telegram · TikTok · myTarget</div>
-    <h1 class="hero-title">
-      Barcha reklama<br>
-      <em>bir joyda. Real vaqtda.</em>
-    </h1>
-    <p class="hero-sub">
-      Excel faylni yuklang — dashboard avtomatik tuziladi.<br>
-      Qaysi kampaniya pul isrof qilayotganini 30 soniyada ko'ring.
-    </p>
-  </div>
-</section>
-
-<!-- ── SOCIAL PROOF ── -->
-<div class="proof-bar">
-  <div class="proof-item">
-    <div>
-      <div class="proof-val">8+</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Platform</div>
+  <div class="headline-block">
+    <div class="hl-eyebrow">
+      <span class="hl-dot"></span>
+      Meta · Google · Yandex · Telegram · TikTok · myTarget
+      <span class="hl-dot"></span>
     </div>
-  </div>
-  <div class="proof-sep"></div>
-  <div class="proof-item">
-    <div>
-      <div class="proof-val">30 sek</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Hisobot tayyor</div>
-    </div>
-  </div>
-  <div class="proof-sep"></div>
-  <div class="proof-item">
-    <div>
-      <div class="proof-val">0 kod</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Kerak emas</div>
-    </div>
-  </div>
-  <div class="proof-sep"></div>
-  <div class="proof-item">
-    <div>
-      <div class="proof-val">100%</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px">Xavfsiz</div>
-    </div>
-  </div>
-</div>
-
-<!-- ── MAIN: PRICING ── -->
-<main>
-
-  <div>
-    <div class="section-label">Tarif rejalar</div>
-    <div class="section-title">Bir martalik to'lov — <em style="color:var(--accent)">to'liq kirish</em></div>
-    <div class="section-sub">Obuna yo'q. Yashirin to'lovlar yo'q. Ishlating.</div>
+    <h1 class="hl-title">Reklama tahlili —<br><em>bir joyda, real vaqtda</em></h1>
+    <p class="hl-sub">Excel yuklang, 30 soniyada dashboard tayyor. Qaysi kampaniya pul isrof qilayotganini ko'ring.</p>
   </div>
 
+  <!-- Proof chips -->
+  <div class="proof-chips">
+    <div class="proof-chip"><b>8+</b> platform</div>
+    <div class="proof-chip"><b>30 sek</b> hisobot</div>
+    <div class="proof-chip"><b>0 kod</b> kerak emas</div>
+    <div class="proof-chip"><b>5 min</b> faollashadi</div>
+  </div>
+
+  <!-- ═══ PRICING — main focus ═══ -->
   <div class="plans-row">
 
-    <!-- ── OYLIK ── -->
+    <!-- OYLIK -->
     <div class="plan-card popular" id="cardMonthly">
-      <div class="card-glow"></div>
+      <div class="cg"></div>
       <div class="popular-badge">
-        <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         Eng ko'p tanlangan
       </div>
       <div class="plan-name">1 Oylik kirish</div>
-      <div class="plan-tagline">Test qilib ko'ring — aqlingiz ketadi</div>
+      <div class="plan-hook">Test qilib ko'ring — aqlingiz ketadi</div>
 
-      <div class="price-block">
-        <div class="price-old">300 000 UZS</div>
-        <div class="price-row">
-          <span class="price-amount">200 000</span>
-          <span class="price-period">UZS / oy</span>
-        </div>
-        <div class="price-day">≈ kuniga 6 667 UZS · bir kofe narxi</div>
+      <div class="price-old">300 000 UZS</div>
+      <div class="price-row">
+        <span class="price-num">200 000</span>
+        <span class="price-per">UZS / oy</span>
       </div>
+      <div class="price-day">≈ kuniga 6 667 UZS · bir kofe narxi</div>
 
-      <ul class="plan-features">
-        <li><span class="ico g">✓</span> Barcha 8 platform dashboardi</li>
-        <li><span class="ico g">✓</span> Cheksiz Excel / CSV yuklash</li>
-        <li><span class="ico a">✓</span> CPL, CPM, ROAS, Reach grafiklar</li>
-        <li><span class="ico a">✓</span> Heatmap — kuchsiz kampaniyani toping</li>
-        <li><span class="ico b">✓</span> Google Drive avtomatik saqlash</li>
-        <li><span class="ico p">✓</span> AI tahlil assistenti</li>
+      <ul class="feats">
+        <li><span class="fi g">✓</span> Barcha 8 platform dashboardi</li>
+        <li><span class="fi g">✓</span> Cheksiz Excel / CSV yuklash</li>
+        <li><span class="fi a">✓</span> CPL, CPM, ROAS, Reach grafiklar</li>
+        <li><span class="fi a">✓</span> Heatmap — zaif kampaniyalarni toping</li>
+        <li><span class="fi b">✓</span> Google Drive avtosaqlovchi</li>
+        <li><span class="fi p">✓</span> AI tahlil assistenti</li>
       </ul>
 
       <div class="pay-btns">
-        <button class="pay-btn btn-telegram" onclick="openTelegram('monthly')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+        <button class="pay-btn btn-tg" onclick="openTelegram('monthly')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
           Telegram orqali to'lash
         </button>
-        <button class="pay-btn btn-payme" disabled>
-          <span class="payme-logo">P</span> Payme
-          <span class="soon-badge">Tez kunda</span>
+        <button class="pay-btn btn-dis" disabled>
+          <span style="color:#00CCCC;font-weight:800;font-size:13px">P</span> Payme <span class="soon">Tez kunda</span>
         </button>
-        <button class="pay-btn btn-click" disabled>
-          <span class="click-logo">C</span> Click
-          <span class="soon-badge">Tez kunda</span>
+        <button class="pay-btn btn-dis" disabled>
+          <span style="color:#FF6B35;font-weight:800;font-size:13px">C</span> Click <span class="soon">Tez kunda</span>
         </button>
       </div>
-
-      <div class="urgency">
-        ⚡ Telegram orqali 5 daqiqada faollashadi.<br>
-        Admin 24/7 javob beradi.
-      </div>
+      <div class="urgency">⚡ 5 daqiqada faollashtirish · Admin 24/7 javob beradi</div>
     </div>
 
-    <!-- ── 3 OYLIK ── -->
+    <!-- 3 OYLIK -->
     <div class="plan-card" id="cardAnnual">
       <div class="plan-name">3 Oylik kirish</div>
-      <div class="plan-tagline">Ko'proq tejang — uzoqroq ishlang</div>
+      <div class="plan-hook">Ko'proq tejang — uzoqroq ishlang</div>
 
-      <div class="price-block">
-        <div class="price-old">600 000 UZS</div>
-        <div class="price-row">
-          <span class="price-amount">500 000</span>
-          <span class="price-period">UZS / 3 oy</span>
-        </div>
-        <div class="price-day" style="color:var(--amber)">3 oyda 100 000 UZS tejaysiz 🎁</div>
+      <div class="price-old">600 000 UZS</div>
+      <div class="price-row">
+        <span class="price-num">500 000</span>
+        <span class="price-per">UZS / 3 oy</span>
       </div>
+      <div class="price-day" style="color:var(--amber)">100 000 UZS tejaysiz · 1 oy bepul 🎁</div>
 
-      <ul class="plan-features">
-        <li><span class="ico g">✓</span> Oylikdagi barcha imkoniyatlar</li>
-        <li><span class="ico g">✓</span> 2 narxda 3 oy (1 oy gift)</li>
-        <li><span class="ico a">✓</span> Yangi funksiyalarga erta kirish</li>
-        <li><span class="ico b">✓</span> Ustunlik texnik qo'llab-quvvatlash</li>
-        <li><span class="ico p">✓</span> Shaxsiy onboarding sessiya</li>
+      <ul class="feats">
+        <li><span class="fi g">✓</span> Oylikdagi barcha imkoniyatlar</li>
+        <li><span class="fi g">✓</span> 2 narxda 3 oy (1 oy gift)</li>
+        <li><span class="fi a">✓</span> Yangi funksiyalarga erta kirish</li>
+        <li><span class="fi b">✓</span> Ustunlik texnik qo'llab-quvvatlash</li>
+        <li><span class="fi p">✓</span> Shaxsiy onboarding sessiya</li>
       </ul>
 
       <div class="pay-btns">
-        <button class="pay-btn btn-telegram" onclick="openTelegram('annual')">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+        <button class="pay-btn btn-tg" onclick="openTelegram('annual')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
           Telegram orqali to'lash
         </button>
-        <button class="pay-btn btn-payme" disabled>
-          <span class="payme-logo">P</span> Payme
-          <span class="soon-badge">Tez kunda</span>
+        <button class="pay-btn btn-dis" disabled>
+          <span style="color:#00CCCC;font-weight:800;font-size:13px">P</span> Payme <span class="soon">Tez kunda</span>
         </button>
-        <button class="pay-btn btn-click" disabled>
-          <span class="click-logo">C</span> Click
-          <span class="soon-badge">Tez kunda</span>
+        <button class="pay-btn btn-dis" disabled>
+          <span style="color:#FF6B35;font-weight:800;font-size:13px">C</span> Click <span class="soon">Tez kunda</span>
         </button>
       </div>
-
-      <div class="urgency" style="border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.05);color:var(--amber)">
-        💎 3 oy ichida reklamangiz samarasini 2x oshiring<br>
-        yoki pulni qaytarib beramiz.
-      </div>
+      <div class="urgency amber">💎 Reklamangiz samarasini 2x oshiring yoki pulni qaytaramiz</div>
     </div>
 
-  </div>
+  </div><!-- /plans-row -->
 
-  <!-- Trust -->
+</section>
+
+<!-- ══════════════════════════════════════
+     BELOW FOLD — check + trust
+     ══════════════════════════════════════ -->
+<div class="below-fold">
+
   <div class="trust-row">
     <div class="trust-item">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Ma'lumotlaringiz xavfsiz
     </div>
     <div class="trust-item">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
       5 daqiqada faol
     </div>
     <div class="trust-item">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
       Google bilan tizimga kirilgan
     </div>
   </div>
 
-  <!-- Check -->
-  <div class="check-section">
-    <div class="check-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+  <div class="check-box">
+    <div class="check-ico">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="check-title">To'lov qildingizmi?</div>
-    <div class="check-sub">
-      Telegramga chek yuborib bo'lgach, admin 5–15 daqiqada tasdiqlaydi.<br>
-      Keyin pastdagi tugmani bosing.
-    </div>
-    <button class="check-btn" id="checkBtn" onclick="checkPayment()">
-      ✓ To'lovni tekshirish
-    </button>
+    <div class="check-sub">Telegramga chek yuborgach, admin 5–15 daqiqada tasdiqlaydi.<br>Keyin pastdagi tugmani bosing.</div>
+    <button class="check-btn" id="checkBtn" onclick="checkPayment()">✓ To'lovni tekshirish</button>
     <div class="check-result" id="checkResult"></div>
   </div>
 
-</main>
+</div>
 
 <!-- ── FIREBASE ── -->
 <script src="assets/firebase.js"></script>
@@ -635,15 +540,14 @@ main {
 
   const TELEGRAM_USERNAME = "eoautomations";
   const PRICES = {
-    monthly: { uzs: 200000, label: "200 000 UZS / 1 oy"  },
-    annual:  { uzs: 500000, label: "500 000 UZS / 3 oy"  }
+    monthly: { label: "200 000 UZS / 1 oy" },
+    annual:  { label: "500 000 UZS / 3 oy" }
   };
 
   const app  = initializeApp(window.FIREBASE_CONFIG);
   const auth = getAuth(app);
   const db   = getFirestore(app);
   window.__firebaseApp = app;
-
   let currentUser = null;
 
   onAuthStateChanged(auth, async user => {
@@ -657,10 +561,7 @@ main {
     document.getElementById("loadingOverlay").classList.remove("show");
   });
 
-  window.handleLogout = async () => {
-    await signOut(auth);
-    window.location.href = "index.html";
-  };
+  window.handleLogout = async () => { await signOut(auth); window.location.href = "index.html"; };
 
   window.openTelegram = (plan) => {
     if (!currentUser) return;
@@ -669,8 +570,7 @@ main {
       `👤 ${currentUser.displayName || "—"}\n` +
       `📧 ${currentUser.email}\n` +
       `📦 ${plan === "monthly" ? "Oylik" : "3 Oylik"} — ${PRICES[plan].label}\n` +
-      `🔑 UID: ${currentUser.uid}\n\n` +
-      `Quyida to'lov chekini yuboraman.`
+      `🔑 UID: ${currentUser.uid}\n\nTo'lov chekini yuboraman.`
     );
     window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${msg}`, "_blank");
   };
@@ -699,229 +599,129 @@ main {
     }
   };
 
-  // ── 3D DATA GRID BACKGROUND ────────────────────────────────
-  const bgCanvas = document.getElementById("bgCanvas");
-  const bc = bgCanvas.getContext("2d");
+  // ══════════════════════════════════════════════
+  //  SUBTLE BG — very slow drift particles
+  // ══════════════════════════════════════════════
+  const bgC = document.getElementById("bgCanvas");
+  const bc  = bgC.getContext("2d");
   let BW, BH;
-  function resizeBg() {
-    BW = bgCanvas.width  = window.innerWidth;
-    BH = bgCanvas.height = window.innerHeight;
-  }
-  resizeBg();
-  window.addEventListener("resize", resizeBg);
+  const resize = () => { BW = bgC.width = innerWidth; BH = bgC.height = innerHeight; };
+  resize(); addEventListener("resize", resize);
 
-  // Grid nodes
-  const COLS = 12, ROWS = 8;
-  const nodes = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      nodes.push({
-        bx: c / (COLS - 1),
-        by: r / (ROWS - 1),
-        ox: (Math.random() - 0.5) * 0.04,
-        oy: (Math.random() - 0.5) * 0.04,
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.3 + Math.random() * 0.4,
-        active: Math.random() < 0.12
-      });
-    }
-  }
-
-  // Floating data packets
-  const PACKETS = Array.from({ length: 18 }, () => ({
-    prog: Math.random(),
-    speed: 0.0006 + Math.random() * 0.001,
-    fromIdx: Math.floor(Math.random() * nodes.length),
-    toIdx:   Math.floor(Math.random() * nodes.length),
-    color: ["#c8ff00","#3b82f6","#22c55e","#a78bfa","#f59e0b"][Math.floor(Math.random()*5)]
+  const DOTS = Array.from({ length: 55 }, () => ({
+    x: Math.random(), y: Math.random(),
+    r: Math.random() * 1.2 + 0.3,
+    vx: (Math.random() - 0.5) * 0.00012,
+    vy: (Math.random() - 0.5) * 0.00012,
+    a: Math.random() * 0.3 + 0.06,
+    c: ["rgba(200,255,0","rgba(59,130,246","rgba(167,139,250"][Math.floor(Math.random()*3)]
   }));
 
-  function drawBg(ts) {
+  (function animBg() {
     bc.clearRect(0, 0, BW, BH);
-
-    const t = ts * 0.001;
-
-    // Draw grid edges
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const n = nodes[r * COLS + c];
-        const nx = (n.bx + n.ox + Math.sin(t * n.speed + n.phase) * 0.008) * BW;
-        const ny = (n.by + n.oy + Math.cos(t * n.speed * 0.7 + n.phase) * 0.008) * BH;
-        n.cx = nx; n.cy = ny;
-
-        // horizontal
-        if (c < COLS - 1) {
-          const nb = nodes[r * COLS + c + 1];
+    // connect nearby
+    for (let i = 0; i < DOTS.length; i++) {
+      DOTS[i].x += DOTS[i].vx; DOTS[i].y += DOTS[i].vy;
+      if (DOTS[i].x < 0) DOTS[i].x = 1; if (DOTS[i].x > 1) DOTS[i].x = 0;
+      if (DOTS[i].y < 0) DOTS[i].y = 1; if (DOTS[i].y > 1) DOTS[i].y = 0;
+      for (let j = i+1; j < DOTS.length; j++) {
+        const dx = (DOTS[i].x - DOTS[j].x) * BW;
+        const dy = (DOTS[i].y - DOTS[j].y) * BH;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 130) {
           bc.beginPath();
-          bc.moveTo(nx, ny);
-          bc.lineTo(nb.cx || nb.bx * BW, nb.cy || nb.by * BH);
-          bc.strokeStyle = "rgba(200,255,0,0.04)";
-          bc.lineWidth = 0.5;
-          bc.stroke();
-        }
-        // vertical
-        if (r < ROWS - 1) {
-          const nb = nodes[(r + 1) * COLS + c];
-          bc.beginPath();
-          bc.moveTo(nx, ny);
-          bc.lineTo(nb.cx || nb.bx * BW, nb.cy || nb.by * BH);
-          bc.strokeStyle = "rgba(200,255,0,0.03)";
-          bc.lineWidth = 0.5;
-          bc.stroke();
+          bc.moveTo(DOTS[i].x*BW, DOTS[i].y*BH);
+          bc.lineTo(DOTS[j].x*BW, DOTS[j].y*BH);
+          bc.strokeStyle = `rgba(200,255,0,${(1-d/130)*0.04})`;
+          bc.lineWidth = 0.5; bc.stroke();
         }
       }
+      bc.beginPath();
+      bc.arc(DOTS[i].x*BW, DOTS[i].y*BH, DOTS[i].r, 0, Math.PI*2);
+      bc.fillStyle = `${DOTS[i].c},${DOTS[i].a})`;
+      bc.fill();
     }
+    requestAnimationFrame(animBg);
+  })();
 
-    // Draw nodes
-    nodes.forEach(n => {
-      if (!n.cx) return;
-      bc.beginPath();
-      bc.arc(n.cx, n.cy, n.active ? 2.5 : 1.2, 0, Math.PI * 2);
-      bc.fillStyle = n.active
-        ? `rgba(200,255,0,${0.4 + 0.3 * Math.sin(t * 2 + n.phase)})`
-        : "rgba(200,255,0,0.08)";
-      bc.fill();
-      if (n.active) {
-        bc.beginPath();
-        bc.arc(n.cx, n.cy, 6, 0, Math.PI * 2);
-        bc.fillStyle = "rgba(200,255,0,0.06)";
-        bc.fill();
-      }
-    });
-
-    // Draw data packets moving along edges
-    PACKETS.forEach(p => {
-      p.prog += p.speed;
-      if (p.prog > 1) {
-        p.prog = 0;
-        p.fromIdx = p.toIdx;
-        // pick adjacent node
-        const fr = Math.floor(p.fromIdx / COLS);
-        const fc = p.fromIdx % COLS;
-        const candidates = [];
-        if (fc < COLS-1) candidates.push(p.fromIdx + 1);
-        if (fc > 0)      candidates.push(p.fromIdx - 1);
-        if (fr < ROWS-1) candidates.push(p.fromIdx + COLS);
-        if (fr > 0)      candidates.push(p.fromIdx - COLS);
-        p.toIdx = candidates[Math.floor(Math.random() * candidates.length)];
-        p.color = ["#c8ff00","#3b82f6","#22c55e","#a78bfa","#f59e0b"][Math.floor(Math.random()*5)];
-      }
-      const fn = nodes[p.fromIdx], tn = nodes[p.toIdx];
-      if (!fn?.cx || !tn?.cx) return;
-      const px = fn.cx + (tn.cx - fn.cx) * p.prog;
-      const py = fn.cy + (tn.cy - fn.cy) * p.prog;
-      bc.beginPath();
-      bc.arc(px, py, 3, 0, Math.PI * 2);
-      bc.fillStyle = p.color + "cc";
-      bc.fill();
-      // tail
-      const tx = fn.cx + (tn.cx - fn.cx) * Math.max(0, p.prog - 0.15);
-      const ty = fn.cy + (tn.cy - fn.cy) * Math.max(0, p.prog - 0.15);
-      bc.beginPath();
-      bc.moveTo(tx, ty);
-      bc.lineTo(px, py);
-      bc.strokeStyle = p.color + "55";
-      bc.lineWidth = 1.5;
-      bc.stroke();
-    });
-
-    requestAnimationFrame(drawBg);
-  }
-  requestAnimationFrame(drawBg);
-
-  // ── ORBIT ANIMATION ────────────────────────────────────────
-  const PLATFORMS = [
-    { name: "Meta Ads",  icon: "f",  color: "#1877F2", bg: "rgba(24,119,242,0.14)",  angle: 0,    radius: 100, speed: 0.5  },
-    { name: "Google",    icon: "G",  color: "#EA4335", bg: "rgba(234,67,53,0.14)",   angle: 2.09, radius: 100, speed: 0.5  },
-    { name: "Telegram",  icon: "✈", color: "#229ED9", bg: "rgba(34,158,217,0.14)",  angle: 4.19, radius: 100, speed: 0.5  },
-    { name: "Yandex",    icon: "Я",  color: "#FF3B30", bg: "rgba(255,59,48,0.12)",   angle: 1.05, radius: 162, speed: 0.28 },
-    { name: "TikTok",    icon: "♫", color: "#69C9D0", bg: "rgba(105,201,208,0.12)", angle: 3.14, radius: 162, speed: 0.28 },
-    { name: "myTarget",  icon: "mT", color: "#FF6B35", bg: "rgba(255,107,53,0.12)", angle: 5.24, radius: 162, speed: 0.28 },
+  // ══════════════════════════════════════════════
+  //  MINI ORBIT in header
+  // ══════════════════════════════════════════════
+  const PLATS = [
+    { icon:"f",  color:"#1877F2", bg:"rgba(24,119,242,0.18)",  angle:0,    r:72,  spd:0.7  },
+    { icon:"G",  color:"#EA4335", bg:"rgba(234,67,53,0.18)",   angle:2.09, r:72,  spd:0.7  },
+    { icon:"✈", color:"#229ED9", bg:"rgba(34,158,217,0.18)",  angle:4.19, r:72,  spd:0.7  },
+    { icon:"Я",  color:"#FF3B30", bg:"rgba(255,59,48,0.14)",   angle:1.05, r:120, spd:0.38 },
+    { icon:"♫", color:"#69C9D0", bg:"rgba(105,201,208,0.14)", angle:3.14, r:120, spd:0.38 },
+    { icon:"mT", color:"#FF6B35", bg:"rgba(255,107,53,0.14)",  angle:5.24, r:120, spd:0.38 },
   ];
 
-  const container   = document.getElementById("orbitContainer");
-  const orbitCanvas = document.getElementById("orbitCanvas");
-  const oc          = orbitCanvas.getContext("2d");
+  const wrap = document.getElementById("miniOrbitWrap");
+  const mc   = document.getElementById("miniOrbitCanvas");
+  const mctx = mc.getContext("2d");
+  let MW, MH;
+  const resizeMini = () => {
+    MW = mc.width  = wrap.offsetWidth  + 20;
+    MH = mc.height = wrap.offsetHeight + 20;
+  };
+  resizeMini(); addEventListener("resize", resizeMini);
 
-  PLATFORMS.forEach(p => {
+  PLATS.forEach(p => {
     const el = document.createElement("div");
-    el.className = "planet";
+    el.className = "mini-planet";
     el.style.background = p.bg;
-    el.innerHTML =
-      `<span class="planet-icon" style="color:${p.color}">${p.icon}</span>` +
-      `<span class="planet-label" style="color:${p.color}">${p.name}</span>`;
-    container.appendChild(el);
+    el.innerHTML = `<span style="color:${p.color};font-size:10px;font-weight:800">${p.icon}</span>`;
+    wrap.appendChild(el);
     p.el = el;
   });
 
-  let OW, OH, mx2 = 0, my2 = 0, rotX2 = 0, rotY2 = 0;
-  function resizeOrbit() {
-    OW = orbitCanvas.width  = container.offsetWidth;
-    OH = orbitCanvas.height = container.offsetHeight;
-  }
-  resizeOrbit();
-  window.addEventListener("resize", resizeOrbit);
+  let mRY = 0, lastMT = 0;
+  (function animMini(ts) {
+    const dt = Math.min((ts - lastMT) / 1000, 0.05); lastMT = ts;
+    mRY += 0.4 * dt; // constant slow rotation
+    const cosY = Math.cos(mRY), sinY = Math.sin(mRY);
+    const tiltX = 0.36; // fixed slight 3D tilt
+    const cosX = Math.cos(tiltX), sinX = Math.sin(tiltX);
+    const cx = wrap.offsetWidth / 2, cy = wrap.offsetHeight / 2;
 
-  document.addEventListener("mousemove", e => {
-    const r = container.getBoundingClientRect();
-    mx2 = ((e.clientX - (r.left + r.width  * 0.5)) / (r.width  * 0.5));
-    my2 = ((e.clientY - (r.top  + r.height * 0.5)) / (r.height * 0.5));
-  });
-
-  let lastT2 = 0;
-  function orbitFrame(ts) {
-    const dt = Math.min((ts - lastT2) / 1000, 0.05);
-    lastT2 = ts;
-    rotX2 += (my2 * -18 - rotX2) * 0.06;
-    rotY2 += (mx2 *  24 - rotY2) * 0.06;
-
-    const sinX = Math.sin(rotX2 * Math.PI / 180);
-    const cosX = Math.cos(rotX2 * Math.PI / 180);
-    const sinY = Math.sin(rotY2 * Math.PI / 180);
-    const cosY = Math.cos(rotY2 * Math.PI / 180);
-    const cx = OW / 2, cy = OH / 2;
-
-    oc.clearRect(0, 0, OW, OH);
-    [100, 162].forEach((r, ri) => {
-      oc.beginPath();
-      oc.ellipse(cx, cy, r, r * Math.abs(cosX) * 0.48 + 6, 0, 0, Math.PI * 2);
-      oc.strokeStyle = ri === 0 ? "rgba(200,255,0,0.1)" : "rgba(200,255,0,0.05)";
-      oc.lineWidth = 1;
-      oc.setLineDash([4, 7]);
-      oc.stroke();
-      oc.setLineDash([]);
+    mctx.clearRect(0, 0, MW, MH);
+    // draw orbit rings
+    [72, 120].forEach((r, ri) => {
+      mctx.beginPath();
+      mctx.ellipse(cx + 10, cy + 10, r, r * cosX * 0.42 + 4, 0, 0, Math.PI*2);
+      mctx.strokeStyle = ri===0 ? "rgba(200,255,0,0.12)" : "rgba(200,255,0,0.06)";
+      mctx.lineWidth = 0.8;
+      mctx.setLineDash([3,6]); mctx.stroke(); mctx.setLineDash([]);
     });
 
-    PLATFORMS.forEach(p => {
-      p.angle += p.speed * dt;
-      let x = Math.cos(p.angle) * p.radius;
-      let z = Math.sin(p.angle) * p.radius;
-      const x1 = x * cosY + z * sinY;
-      const z1 = -x * sinY + z * cosY;
-      const y2 = -z1 * sinX;
-      const z2 =  z1 * cosX;
-      const fov = 480;
-      const scale = fov / (fov + z2 + 80);
-      const px = cx + x1 * scale;
-      const py = cy + y2 * scale * 0.7;
-      const depth = (z2 / p.radius + 1) * 0.5;
-      const opacity = 0.25 + depth * 0.75;
-      const sz = 0.5 + depth * 0.55;
-      p.el.style.transform = `translate(${px - cx}px, ${py - cy}px) scale(${sz})`;
+    PLATS.forEach(p => {
+      p.angle += p.spd * dt;
+      let x = Math.cos(p.angle) * p.r;
+      let z = Math.sin(p.angle) * p.r;
+      const x1 = x*cosY + z*sinY;
+      const z1 = -x*sinY + z*cosY;
+      const y2 = -z1*sinX;
+      const z2 =  z1*cosX;
+      const fov = 350;
+      const sc  = fov / (fov + z2 + 60);
+      const px  = cx + x1*sc;
+      const py  = cy + y2*sc*0.65;
+      const depth   = (z2/p.r + 1)*0.5;
+      const opacity = 0.22 + depth*0.78;
+      const size    = 0.45 + depth*0.55;
+      p.el.style.transform = `translate(${px-cx}px, ${py-cy}px) scale(${size})`;
       p.el.style.opacity   = opacity.toFixed(3);
-      p.el.style.zIndex    = Math.round(depth * 90 + 5);
+      p.el.style.zIndex    = Math.round(depth*90 + 5);
     });
+    requestAnimationFrame(animMini);
+  })(0);
 
-    requestAnimationFrame(orbitFrame);
-  }
-  requestAnimationFrame(orbitFrame);
-
-  // ── CARD 3D TILT ──────────────────────────────────────────
+  // ── Card 3D tilt ──────────────────────────────────────────
   document.querySelectorAll(".plan-card").forEach(card => {
     card.addEventListener("mousemove", e => {
       const r = card.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width  - 0.5) * 14;
-      const y = ((e.clientY - r.top)  / r.height - 0.5) * -14;
+      const x = ((e.clientX-r.left)/r.width  - 0.5) * 12;
+      const y = ((e.clientY-r.top) /r.height - 0.5) * -12;
       card.style.transform = `perspective(700px) rotateX(${y}deg) rotateY(${x}deg) scale(1.02)`;
     });
     card.addEventListener("mouseleave", () => {
@@ -930,44 +730,44 @@ main {
   });
 </script>
 
-<!-- lang switcher -->
+<!-- lang -->
 <script src="js/i18n.js"></script>
 <style>
-.pay-lang{position:fixed;top:16px;right:16px;z-index:200;display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
-.pay-lang .lang-btn{padding:5px 10px;font-size:11px;font-weight:600;background:transparent;border:none;cursor:pointer;color:rgba(240,240,240,.5);font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
-.pay-lang .lang-btn:hover{color:#f0f0f0;}
-.pay-lang .lang-btn.active{background:rgba(200,255,0,.12);color:#c8ff00;}
+.pay-lang{position:fixed;top:14px;right:14px;z-index:200;display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;overflow:hidden;}
+.pay-lang .lb{padding:5px 9px;font-size:10px;font-weight:600;background:transparent;border:none;cursor:pointer;color:rgba(240,240,240,.4);font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
+.pay-lang .lb:hover{color:#f0f0f0;}
+.pay-lang .lb.active{background:rgba(200,255,0,.1);color:#c8ff00;}
 </style>
 <div class="pay-lang">
-  <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
-  <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+  <button class="lb" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+  <button class="lb" data-lang="ru" onclick="I18n.set('ru')">RU</button>
 </div>
 
-<!-- support widget -->
+<!-- support -->
 <style>
-.sup-btn{position:fixed;bottom:20px;right:20px;z-index:200;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#9ca3af;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
+.sup-btn{position:fixed;bottom:18px;right:18px;z-index:200;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#6b7280;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;}
 .sup-btn:hover{border-color:var(--accent);color:var(--accent);}
-.sup-popup{position:fixed;bottom:64px;right:20px;z-index:199;background:rgba(20,22,25,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px;width:200px;display:none;flex-direction:column;gap:8px;}
+.sup-popup{position:fixed;bottom:60px;right:18px;z-index:199;background:rgba(18,20,24,0.97);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:14px 16px;width:190px;display:none;flex-direction:column;gap:8px;}
 .sup-popup.open{display:flex;}
-.sup-popup-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;margin-bottom:2px;}
-.sup-link{display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;text-decoration:none;padding:5px 6px;border-radius:7px;transition:background .12s,color .12s;}
-.sup-link:hover{background:rgba(255,255,255,.05);color:#f0f0f0;}
-.sup-divider{height:1px;background:rgba(255,255,255,.06);margin:2px 0;}
+.sup-pt{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#374151;margin-bottom:2px;}
+.sup-lnk{display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;text-decoration:none;padding:5px 6px;border-radius:7px;transition:background .12s,color .12s;}
+.sup-lnk:hover{background:rgba(255,255,255,.05);color:#f0f0f0;}
+.sup-div{height:1px;background:rgba(255,255,255,.06);margin:2px 0;}
 </style>
 <div class="sup-popup" id="supPopup">
-  <div class="sup-popup-title">EO Automation</div>
-  <a class="sup-link" href="https://t.me/eoutomation" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+  <div class="sup-pt">EO Automation</div>
+  <a class="sup-lnk" href="https://t.me/eoutomation" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
     Telegram kanal
   </a>
-  <a class="sup-link" href="https://instagram.com/eo.automation" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+  <a class="sup-lnk" href="https://instagram.com/eo.automation" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
     Instagram
   </a>
-  <div class="sup-divider"></div>
-  <div class="sup-popup-title">Xatolik bo'lsa</div>
-  <a class="sup-link" href="https://t.me/eoautomations" target="_blank" rel="noopener">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
+  <div class="sup-div"></div>
+  <div class="sup-pt">Xatolik bo'lsa</div>
+  <a class="sup-lnk" href="https://t.me/eoautomations" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.932z"/></svg>
     @eoautomations
   </a>
 </div>
