@@ -130,16 +130,21 @@ header {
 }
 
 /* Right: user */
-.header-right { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-.user-name { font-size: 12px; color: var(--muted); }
+.header-right { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: nowrap; }
+.user-name { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 .logout-btn {
   padding: 5px 12px;
   background: transparent; border: 1px solid rgba(255,255,255,0.08);
   border-radius: 7px; font-size: 11px; color: var(--muted);
   cursor: pointer; font-family: 'Inter', sans-serif;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s; white-space: nowrap;
 }
 .logout-btn:hover { border-color: var(--red); color: var(--red); }
+/* Lang inside header */
+.header-lang { display: flex; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.header-lang .lb { padding: 5px 9px; font-size: 10px; font-weight: 600; background: transparent; border: none; cursor: pointer; color: rgba(240,240,240,.4); font-family: 'Inter', sans-serif; transition: background .15s, color .15s; }
+.header-lang .lb:hover { color: #f0f0f0; }
+.header-lang .lb.active { background: rgba(200,255,0,.1); color: #c8ff00; }
 
 /* ════════════════════════════════════════
    ABOVE THE FOLD — headline + pricing
@@ -473,8 +478,9 @@ header {
 
 /* ── RESPONSIVE ── */
 @media (max-width: 680px) {
-  header { grid-template-columns: 1fr 1fr; }
+  header { grid-template-columns: auto 1fr; padding: 0 14px; }
   .mini-orbit-wrap { display: none; }
+  .user-name { display: none; }
   .hl-title { font-size: 26px; }
   .plan-card { width: 100%; max-width: 340px; }
   .above-fold { padding-top: 20px; }
@@ -514,6 +520,10 @@ header {
 
   <div class="header-right">
     <span class="user-name" id="userName"></span>
+    <div class="header-lang">
+      <button class="lb lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+      <button class="lb lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+    </div>
     <button class="logout-btn" onclick="handleLogout()" data-i18n="nav.logout">Chiqish</button>
   </div>
 </header>
@@ -965,16 +975,6 @@ header {
 
 <!-- lang -->
 <script src="js/i18n.js"></script>
-<style>
-.pay-lang{position:fixed;top:14px;right:14px;z-index:200;display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:7px;overflow:hidden;}
-.pay-lang .lb{padding:5px 9px;font-size:10px;font-weight:600;background:transparent;border:none;cursor:pointer;color:rgba(240,240,240,.4);font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
-.pay-lang .lb:hover{color:#f0f0f0;}
-.pay-lang .lb.active{background:rgba(200,255,0,.1);color:#c8ff00;}
-</style>
-<div class="pay-lang">
-  <button class="lb lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
-  <button class="lb lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
-</div>
 
 <!-- support -->
 <style>
