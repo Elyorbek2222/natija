@@ -334,13 +334,112 @@ tbody td:first-child{ font-weight:500; max-width:180px; overflow:hidden; text-ov
 .hbdg.warn { background:rgba(245,158,11,.1); color:#f59e0b; border:1px solid rgba(245,158,11,.2); }
 .hbdg.bad  { background:rgba(239,68,68,.1);  color:#ef4444; border:1px solid rgba(239,68,68,.2); }
 
-/* ── RESPONSIVE ──────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE
+══════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤768px) ── */
 @media(max-width:768px) {
-  .sidebar   { display:none; }
-  .main-wrap { margin-left:0; }
-  #scrollBar { left:0; }
-  .topbar    { padding:0 16px; }
-  .page      { padding:20px 16px 60px; }
+  .sidebar      { display:none; }
+  .main-wrap    { margin-left:0; }
+  #scrollBar    { left:0; }
+  .topbar       { padding:0 14px; height:52px; }
+  .topbar-title { font-size:15px; }
+  .page         { padding:16px 14px 80px; }
+
+  /* Filter bar wraps */
+  .filter-bar   { padding:8px 14px; gap:6px; flex-wrap:wrap; }
+  .rpt-pill     { font-size:11px; padding:5px 10px; }
+
+  /* KPI grid: 2 columns on tablet */
+  .kpi-grid { grid-template-columns: repeat(2,1fr); gap:10px; }
+
+  /* Charts: single column */
+  .chart-grid.c2,
+  .chart-grid.c3 { grid-template-columns: 1fr; }
+
+  /* Table: horizontal scroll */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .camp-table { min-width: 600px; font-size:12px; }
+  .camp-table th, .camp-table td { padding:8px 10px; }
+
+  /* Sections gap */
+  .section { margin-bottom:20px; }
+  .section-title { font-size:13px; }
+
+  /* Period pill */
+  .period-pill { font-size:11px; padding:3px 10px; }
+
+  /* Upload/logout buttons */
+  .topbar-right { gap:8px; }
+  .tb-btn { padding:6px 12px; font-size:12px; }
+  /* Hide username on tablet */
+  .u-name { display:none; }
+}
+
+/* ── Mobile (≤480px) ── */
+@media(max-width:480px) {
+  /* KPI: single column */
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap:8px; }
+  .kpi-card { padding:12px 12px 10px; }
+  .kpi-val  { font-size:22px; }
+  .kpi-lbl  { font-size:10px; }
+  .kpi-sub  { font-size:10px; }
+
+  /* Sparkline hide on very small */
+  .spk-wrap { display:none; }
+
+  /* Topbar: hide period pill, compress */
+  .topbar-title { font-size:14px; }
+  .period-pill  { display:none; }
+  #reportDate   { display:none; }
+
+  /* Mobile bottom nav */
+  .mob-nav {
+    display: flex;
+    position: fixed; bottom:0; left:0; right:0; z-index:300;
+    background: var(--bg-el);
+    border-top: 1px solid var(--border);
+    height: 58px;
+  }
+  .mob-nav-item {
+    flex: 1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:3px;
+    color: var(--muted); font-size:9px; font-weight:600;
+    letter-spacing:.04em; text-decoration:none; text-transform:uppercase;
+    transition: color .15s;
+    border:none; background:transparent; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .mob-nav-item svg { width:18px; height:18px; stroke-width:1.8; }
+  .mob-nav-item.active { color: var(--accent); }
+  .mob-nav-item:hover  { color: var(--text); }
+
+  /* Filter pills scroll */
+  .filter-bar    { overflow-x:auto; flex-wrap:nowrap; padding:6px 14px; }
+  .filter-pills  { display:flex; gap:6px; white-space:nowrap; }
+
+  /* Charts */
+  .chart-card    { padding:14px 12px; }
+
+  /* Funnel bars */
+  .fs-lbl  { font-size:11px; }
+  .fs-val  { font-size:13px; }
+
+  /* Table: more compact */
+  .camp-table   { min-width:520px; font-size:11px; }
+  .camp-table th, .camp-table td { padding:6px 8px; }
+
+  /* AI FAB — move up from table edge */
+  .ast-fab      { bottom:16px; right:14px; padding:10px 14px; font-size:12px; }
+  .ast-fab-label { display:none; }
+
+  /* Support widget */
+  .sup-btn { bottom:16px; left:14px; }
+
+  /* Section spacing */
+  .page { padding:14px 12px 90px; }
+  .section { margin-bottom:16px; }
 }
 
 /* ══════════════════════════════════════════════════════════════

@@ -596,5 +596,31 @@ onAuthStateChanged(auth, async user => {
   </a>
 </div>
 <button class="sup-btn" onclick="document.getElementById('supPopup').classList.toggle('open')">?</button>
+
+<!-- ── MOBILE BOTTOM NAV (only visible ≤480px) ── -->
+<nav class="mob-nav" id="mobNav" style="display:none">
+  <a class="mob-nav-item active" href="dashboard.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </a>
+  <a class="mob-nav-item" href="upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Yuklash
+  </a>
+  <button class="mob-nav-item" onclick="document.getElementById('astFab')?.click()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    AI Tahlil
+  </button>
+  <button class="mob-nav-item" onclick="handleLogout()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Chiqish
+  </button>
+</nav>
+<script>
+if(window.innerWidth <= 480) document.getElementById('mobNav').style.display='flex';
+window.addEventListener('resize',()=>{
+  document.getElementById('mobNav').style.display = window.innerWidth<=480?'flex':'none';
+});
+</script>
 </body>
 </html>
