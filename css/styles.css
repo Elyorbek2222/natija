@@ -518,34 +518,40 @@ tbody td:first-child{ font-weight:500; max-width:180px; overflow:hidden; text-ov
 .lang-btn:hover  { color:var(--text); }
 .lang-btn.active { background:var(--accent-dim); color:var(--accent); }
 
-/* ── SUPPORT BAR ─────────────────────────────────────────────── */
-.support-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 8px;
-  padding: 10px 20px;
-  border-top: 1px solid rgba(255,255,255,.05);
-  opacity: .38;
-  transition: opacity .2s;
+/* ── SUPPORT WIDGET ──────────────────────────────────────────── */
+.sup-btn {
+  position: fixed; bottom: 24px; left: 24px; z-index: 900;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: #6b7280; font-size: 14px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .2s, color .2s, border-color .2s;
+  font-family: 'Inter', sans-serif;
 }
-.support-bar:hover { opacity: .7; }
-.support-bar-left, .support-bar-right {
-  display: flex; align-items: center; gap: 14px;
+.sup-btn:hover { background: rgba(255,255,255,.10); color: #d1d5db; border-color: rgba(255,255,255,.18); }
+
+.sup-popup {
+  position: fixed; bottom: 64px; left: 24px; z-index: 901;
+  background: #1a1d28; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; padding: 14px 16px;
+  display: none; flex-direction: column; gap: 10px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
 }
-.support-link {
-  display: flex; align-items: center; gap: 5px;
-  color: #9ca3af; text-decoration: none;
-  font-size: 11px; font-weight: 500; letter-spacing: .02em;
-  transition: color .15s;
+.sup-popup.open { display: flex; }
+.sup-popup-title {
+  font-size: 10px; color: #4b5563; text-transform: uppercase;
+  letter-spacing: .08em; font-weight: 600;
 }
-.support-link:hover { color: #f0f0f0; }
-.support-link svg { flex-shrink: 0; }
-.support-sep {
-  width: 1px; height: 12px;
-  background: rgba(255,255,255,.12);
+.sup-link {
+  display: flex; align-items: center; gap: 8px;
+  color: #9ca3af; text-decoration: none; font-size: 12px;
+  font-weight: 500; transition: color .15s;
 }
-.support-label {
-  font-size: 11px; color: #6b7280; letter-spacing: .02em;
-}
+.sup-link:hover { color: #f0f0f0; }
+.sup-link svg { flex-shrink: 0; opacity: .7; }
+.sup-divider { height: 1px; background: rgba(255,255,255,.06); margin: 2px 0; }
 
 /* ── ASSISTANT AI EXTRAS ─────────────────────────────────────── */
 
