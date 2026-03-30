@@ -342,6 +342,11 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
     <div>
       <div class="modal-label">Tarif tanlang:</div>
       <div class="modal-plans">
+        <div class="plan-opt" id="optTrial" onclick="selectPlan('trial')" style="border-color:rgba(6,182,212,0.4);background:rgba(6,182,212,0.06)">
+          <div class="plan-opt-name" style="color:#06b6d4">🧪 Test</div>
+          <div class="plan-opt-price" style="color:#06b6d4">Bepul</div>
+          <div class="plan-opt-dur" style="color:#06b6d4">+3 kun</div>
+        </div>
         <div class="plan-opt selected" id="optMonthly" onclick="selectPlan('monthly')">
           <div class="plan-opt-name">Oylik</div>
           <div class="plan-opt-price">200 000 UZS</div>
@@ -530,8 +535,12 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
 
   window.selectPlan = (plan) => {
     _grantPlan = plan;
+    document.getElementById("optTrial").classList.toggle("selected",   plan === "trial");
     document.getElementById("optMonthly").classList.toggle("selected", plan === "monthly");
-    document.getElementById("opt3month").classList.toggle("selected", plan === "3month");
+    document.getElementById("opt3month").classList.toggle("selected",  plan === "3month");
+    // trial kartochka rang
+    document.getElementById("optTrial").style.borderColor =
+      plan === "trial" ? "#06b6d4" : "rgba(6,182,212,0.3)";
   };
 
   window.confirmGrant = async () => {
@@ -539,7 +548,9 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
     closeModal();
     try {
       const paidUntil = new Date();
-      if (_grantPlan === "3month") {
+      if (_grantPlan === "trial") {
+        paidUntil.setDate(paidUntil.getDate() + 3);
+      } else if (_grantPlan === "3month") {
         paidUntil.setMonth(paidUntil.getMonth() + 3);
       } else {
         paidUntil.setMonth(paidUntil.getMonth() + 1);
@@ -548,12 +559,13 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
       await setDoc(doc(db, "users", _grantUid), {
         isPaid:          true,
         plan:            _grantPlan,
-        paymentProvider: "manual",
+        paymentProvider: _grantPlan === "trial" ? "trial" : "manual",
         paidAt:          serverTimestamp(),
         paidUntil:       paidUntil
       }, { merge: true });
 
-      const label = _grantPlan === "3month" ? "3 oylik" : "oylik";
+      const label = _grantPlan === "trial" ? "3 kunlik test"
+                  : _grantPlan === "3month" ? "3 oylik" : "oylik";
       toast("ok", `✓ ${_grantEmail || _grantUid} ga ${label} dostup berildi`);
       await loadUsers();
     } catch (e) {
