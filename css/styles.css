@@ -582,3 +582,221 @@ tbody td:first-child{ font-weight:500; max-width:180px; overflow:hidden; text-ov
 
 /* Disabled input state while waiting */
 .ast-input:disabled { opacity:.5; cursor:not-allowed; }
+
+/* ── UMUMIY XULOSA BLOKI ─────────────────────────────────────── */
+
+/* Umumiy KPI qatori */
+.sum-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+@media (max-width: 1100px) { .sum-kpi-row { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .sum-kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+.sum-kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--skc, var(--accent));
+  border-radius: 10px;
+  padding: 14px 12px 12px;
+  text-align: center;
+  transition: transform .15s;
+}
+.sum-kpi-card:hover { transform: translateY(-2px); }
+.sum-kpi-icon { font-size: 18px; margin-bottom: 6px; }
+.sum-kpi-val  { font-size: 18px; font-weight: 700; color: var(--skc, var(--accent)); letter-spacing: -.3px; }
+.sum-kpi-lbl  { font-size: 10px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
+
+/* Kanal kartochkalari grid */
+.sum-channels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.sum-ch-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.sum-ch-card.sum-ch-best  { border-color: rgba(34,197,94,.35); }
+.sum-ch-card.sum-ch-worst { border-color: rgba(239,68,68,.25); }
+
+.sum-ch-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.sum-ch-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sum-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  letter-spacing: .3px;
+}
+.sum-badge.best  { background: rgba(34,197,94,.15);  color: #22c55e; }
+.sum-badge.worst { background: rgba(239,68,68,.12);  color: #ef4444; }
+
+.sum-ch-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sum-ch-metric  { }
+.sum-ch-mlbl    { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+.sum-ch-mval    { font-size: 15px; font-weight: 700; color: var(--text); }
+.sum-ch-msub    { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+/* CPL progress bar */
+.sum-ch-bar-wrap {
+  height: 3px;
+  background: rgba(255,255,255,.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.sum-ch-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .5s ease;
+}
+
+/* Verdict (eng arzon / eng qimmat) */
+.sum-verdict {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 4px;
+}
+@media (max-width: 640px) { .sum-verdict { flex-direction: column; } }
+
+.sum-verd-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+.sum-verd-card.best  { background: rgba(34,197,94,.08);  border: 1px solid rgba(34,197,94,.2); }
+.sum-verd-card.worst { background: rgba(239,68,68,.06);  border: 1px solid rgba(239,68,68,.18); }
+
+.sum-verd-icon { font-size: 28px; }
+.sum-verd-body { }
+.sum-verd-title { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 4px; }
+.sum-verd-name  { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.sum-verd-stat  { font-size: 12px; color: var(--muted); }
+.sum-verd-stat strong { color: var(--text); }
+
+.sum-verd-mid {
+  text-align: center;
+  min-width: 64px;
+}
+.sum-verd-diff {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ef4444;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: -.5px;
+  line-height: 1.1;
+}
+.sum-verd-diff span {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── ATAMALAR LUG'ATI ────────────────────────────────────────── */
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.gls-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color .2s, transform .15s;
+}
+.gls-card:hover {
+  border-color: rgba(200,255,0,.2);
+  transform: translateY(-1px);
+}
+
+.gls-top {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.gls-term {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--accent);
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: .5px;
+}
+.gls-full {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.gls-def {
+  font-size: 12px;
+  color: rgba(240,242,245,.7);
+  line-height: 1.55;
+}
+.gls-def strong { color: var(--text); }
+
+.gls-example {
+  background: rgba(255,255,255,.03);
+  border-left: 2px solid rgba(200,255,0,.3);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.gls-example strong { color: var(--accent); }
+.gls-eg-lbl {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+
+.gls-rule {
+  font-size: 10px;
+  color: var(--muted);
+  padding: 4px 8px;
+  background: rgba(255,255,255,.03);
+  border-radius: 6px;
+  margin-top: auto;
+}
+.gls-rule.good { color: #22c55e; background: rgba(34,197,94,.07); }

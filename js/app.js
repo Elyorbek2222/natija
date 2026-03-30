@@ -17,7 +17,148 @@ const App = (() => {
       document.getElementById("dashContent").style.display = "none";
       return;
     }
+    _renderSummary(reports);
     _render(reports[0]);
+  }
+
+  // ── RENDER SUMMARY (2+ reports) ──────────────────────────────
+  function _renderSummary(reports) {
+    const block = document.getElementById("summaryBlock");
+    if (!block) return;
+
+    if (reports.length < 2) { block.style.display = "none"; return; }
+    block.style.display = "block";
+
+    // Kanallar ro'yxatini yasaymiz
+    const channels = reports.map(r => {
+      const cps    = r.campaigns || [];
+      const spend  = cps.reduce((s,c) => s + (c.metrics?.spent_usd   || 0), 0);
+      const res    = cps.reduce((s,c) => s + (c.metrics?.results      || 0), 0);
+      const impr   = cps.reduce((s,c) => s + (c.metrics?.impressions  || 0), 0);
+      const reach  = cps.reduce((s,c) => s + (c.metrics?.reach        || 0), 0);
+      const cpl    = res > 0 ? spend / res : 0;
+      const cpm    = impr > 0 ? spend / impr * 1000 : 0;
+      return {
+        name:  r.meta?.platform || r.sourceFile || "Kanal",
+        spend, res, impr, reach, cpl, cpm,
+        camps: cps.length
+      };
+    });
+
+    // Umumiy KPI
+    const totSpend  = channels.reduce((s,c) => s + c.spend, 0);
+    const totRes    = channels.reduce((s,c) => s + c.res,   0);
+    const totImpr   = channels.reduce((s,c) => s + c.impr,  0);
+    const totReach  = channels.reduce((s,c) => s + c.reach, 0);
+    const avgCpl    = totRes > 0 ? totSpend / totRes : 0;
+    const avgCpm    = totImpr > 0 ? totSpend / totImpr * 1000 : 0;
+
+    // Umumiy KPI qatori
+    const kpiRow = document.getElementById("sumKpiRow");
+    if (kpiRow) kpiRow.innerHTML = [
+      { lbl:"Jami sarflangan",  val:"$"+Utils.fmt(totSpend),       icon:"💰", col:"#c8ff00" },
+      { lbl:"Jami natijalar",   val:Utils.fmtN(totRes),             icon:"🎯", col:"#22c55e" },
+      { lbl:"O'rtacha CPL",     val:"$"+Utils.fmt(avgCpl),          icon:"📉", col:"#3b82f6" },
+      { lbl:"Jami impressions", val:Utils.fmtN(totImpr),            icon:"👁",  col:"#f59e0b" },
+      { lbl:"Jami reach",       val:Utils.fmtN(totReach),           icon:"📡", col:"#06b6d4" },
+      { lbl:"O'rtacha CPM",     val:"$"+Utils.fmt(avgCpm),          icon:"📊", col:"#a78bfa" },
+    ].map(k => `
+      <div class="sum-kpi-card" style="--skc:${k.col}">
+        <div class="sum-kpi-icon">${k.icon}</div>
+        <div class="sum-kpi-val">${k.val}</div>
+        <div class="sum-kpi-lbl">${k.lbl}</div>
+      </div>`).join("");
+
+    // CPL bo'yicha tartiblash (arzondan qimmatga)
+    const sorted = [...channels].filter(c => c.cpl > 0).sort((a,b) => a.cpl - b.cpl);
+    const maxCpl  = sorted.length ? sorted[sorted.length-1].cpl : 1;
+
+    const PLATFORM_ICONS = {
+      "meta ads": "📘", "facebook": "📘", "instagram": "📸",
+      "telegram ads": "✈️", "telegram": "✈️",
+      "google ads": "🔵", "google": "🔵",
+      "yandex direct": "🟡", "yandex": "🟡",
+    };
+    function platformIcon(name) {
+      const key = name.toLowerCase();
+      for (const [k,v] of Object.entries(PLATFORM_ICONS)) if (key.includes(k)) return v;
+      return "📊";
+    }
+
+    // Kanal kartochkalari
+    const chEl = document.getElementById("sumChannels");
+    if (chEl) chEl.innerHTML = channels.map((ch, i) => {
+      const share    = totSpend > 0 ? (ch.spend / totSpend * 100).toFixed(1) : 0;
+      const barPct   = maxCpl > 0 && ch.cpl > 0 ? (ch.cpl / maxCpl * 100).toFixed(1) : 0;
+      const isBest   = sorted.length && sorted[0].name === ch.name;
+      const isWorst  = sorted.length > 1 && sorted[sorted.length-1].name === ch.name;
+      const badge    = isBest  ? '<span class="sum-badge best">✓ Eng arzon</span>'
+                     : isWorst ? '<span class="sum-badge worst">⚠ Eng qimmat</span>'
+                     : '';
+      const cplColor = isBest ? "#22c55e" : isWorst ? "#ef4444" : "#c8ff00";
+      return `
+      <div class="sum-ch-card${isBest?" sum-ch-best":isWorst?" sum-ch-worst":""}">
+        <div class="sum-ch-top">
+          <div class="sum-ch-name">${platformIcon(ch.name)} ${ch.name}</div>
+          ${badge}
+        </div>
+        <div class="sum-ch-metrics">
+          <div class="sum-ch-metric">
+            <div class="sum-ch-mlbl">Sarflangan</div>
+            <div class="sum-ch-mval">$${Utils.fmt(ch.spend)}</div>
+            <div class="sum-ch-msub">${share}% ulush</div>
+          </div>
+          <div class="sum-ch-metric">
+            <div class="sum-ch-mlbl">Natijalar</div>
+            <div class="sum-ch-mval">${Utils.fmtN(ch.res)}</div>
+            <div class="sum-ch-msub">${ch.camps} kampaniya</div>
+          </div>
+          <div class="sum-ch-metric">
+            <div class="sum-ch-mlbl">CPL</div>
+            <div class="sum-ch-mval" style="color:${cplColor}">$${Utils.fmt(ch.cpl)}</div>
+            <div class="sum-ch-msub">natija narxi</div>
+          </div>
+          <div class="sum-ch-metric">
+            <div class="sum-ch-mlbl">CPM</div>
+            <div class="sum-ch-mval">$${Utils.fmt(ch.cpm)}</div>
+            <div class="sum-ch-msub">1000 ko'rsatish</div>
+          </div>
+        </div>
+        <div class="sum-ch-bar-wrap">
+          <div class="sum-ch-bar" style="width:${barPct}%;background:${cplColor}"></div>
+        </div>
+      </div>`;
+    }).join("");
+
+    // Xulosa verdict
+    const verdEl = document.getElementById("sumVerdict");
+    if (verdEl && sorted.length >= 2) {
+      const best  = sorted[0];
+      const worst = sorted[sorted.length-1];
+      const diff  = worst.cpl > 0 ? ((worst.cpl - best.cpl) / worst.cpl * 100).toFixed(0) : 0;
+      verdEl.innerHTML = `
+        <div class="sum-verd-card best">
+          <div class="sum-verd-icon">🏆</div>
+          <div class="sum-verd-body">
+            <div class="sum-verd-title">Eng samarali kanal</div>
+            <div class="sum-verd-name">${platformIcon(best.name)} ${best.name}</div>
+            <div class="sum-verd-stat">CPL: <strong>$${Utils.fmt(best.cpl)}</strong> · ${Utils.fmtN(best.res)} natija</div>
+          </div>
+        </div>
+        <div class="sum-verd-mid">
+          <div class="sum-verd-diff">${diff}%<br><span>qimmatroq</span></div>
+        </div>
+        <div class="sum-verd-card worst">
+          <div class="sum-verd-icon">⚠️</div>
+          <div class="sum-verd-body">
+            <div class="sum-verd-title">Eng qimmat kanal</div>
+            <div class="sum-verd-name">${platformIcon(worst.name)} ${worst.name}</div>
+            <div class="sum-verd-stat">CPL: <strong>$${Utils.fmt(worst.cpl)}</strong> · ${Utils.fmtN(worst.res)} natija</div>
+          </div>
+        </div>`;
+    } else {
+      if (verdEl) verdEl.innerHTML = "";
+    }
   }
 
   // ── PUBLIC: select report pill ───────────────────────────────
@@ -47,6 +188,7 @@ const App = (() => {
     }
     _buildChannels(_reports);
     _buildPills(_reports);
+    _renderSummary(_reports);
     _render(_reports[0]);
   }
 

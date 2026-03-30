@@ -72,6 +72,24 @@
     <div id="filterPills" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"></div>
   </div>
 
+  <!-- ── UMUMIY XULOSA (faqat 2+ hisobot bo'lganda ko'rinadi) ── -->
+  <div id="summaryBlock" style="display:none">
+    <div class="sec-hdr" style="margin-top:0">
+      <div class="sec-dot" style="background:#c8ff00"></div>
+      <div class="sec-title">Umumiy xulosa — barcha kanallar</div>
+      <div class="sec-sub" id="summaryPeriod"></div>
+    </div>
+
+    <!-- Umumiy KPI qatori -->
+    <div class="sum-kpi-row" id="sumKpiRow"></div>
+
+    <!-- Kanal kartochkalari -->
+    <div class="sum-channels" id="sumChannels"></div>
+
+    <!-- Eng arzon / eng qimmat -->
+    <div class="sum-verdict" id="sumVerdict"></div>
+  </div>
+
   <div class="page">
     <div class="empty-state" id="emptyState" style="display:none">
       <div class="empty-icon">📊</div>
@@ -207,6 +225,136 @@
           </table>
         </div>
       </div>
+
+      <!-- ⑦ Atamalar lug'ati -->
+      <div class="sec-hdr" style="margin-top:28px">
+        <div class="sec-dot" style="background:#06b6d4"></div>
+        <div class="sec-title">📖 Atamalar lug'ati — reklama ko'rsatkichlari</div>
+        <div class="sec-sub">Har bir metrika nima degani va qanday o'qish kerakligi</div>
+      </div>
+      <div class="glossary-grid">
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">CPL</span><span class="gls-full">Cost Per Lead</span></div>
+          <div class="gls-def">1 ta <strong>lead (murojaat/ariza)</strong> olish uchun sarflangan pul miqdori.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            $500 sarflab 50 lead olsangiz → CPL = <strong>$10</strong>
+          </div>
+          <div class="gls-rule good">✓ Qanchalik past — shunchalik yaxshi</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">CPM</span><span class="gls-full">Cost Per Mille</span></div>
+          <div class="gls-def">1000 marta <strong>ko'rsatilgani</strong> uchun to'lanadigan narx. Reklama qanchalik qimmatligini ko'rsatadi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            $30 CPM = 1000 odamga ko'rsatish uchun <strong>$30</strong> to'laydi
+          </div>
+          <div class="gls-rule good">✓ Past CPM = ko'p odamga arzon yetish</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">CPC</span><span class="gls-full">Cost Per Click</span></div>
+          <div class="gls-def">1 ta <strong>klik</strong> uchun to'lanadigan narx. Havolaga bosganligi uchun hisoblanadi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            $200 sarflab 400 klik olsangiz → CPC = <strong>$0.50</strong>
+          </div>
+          <div class="gls-rule good">✓ Past CPC = arzon trafik</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">CTR</span><span class="gls-full">Click-Through Rate</span></div>
+          <div class="gls-def">Reklamani ko'rgan odamlardan <strong>nechi foizi</strong> bosgan. Reklamaning qiziqtirish darajasi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            1000 ko'rishdan 30 klik → CTR = <strong>3%</strong>
+          </div>
+          <div class="gls-rule good">✓ 1–3% o'rtacha · 3%+ yaxshi</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Reach</span><span class="gls-full">Qamrov</span></div>
+          <div class="gls-def">Reklamangizni ko'rgan <strong>noyob odamlar</strong> soni. Bir kishi bir marta hisoblanadi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            Reach 50 000 = <strong>50 ming alohida odam</strong> ko'rgan
+          </div>
+          <div class="gls-rule">📌 Impressions ≥ Reach (chunki bir odam bir necha marta ko'rishi mumkin)</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Impressions</span><span class="gls-full">Ko'rsatishlar</span></div>
+          <div class="gls-def">Reklamangiz <strong>jami necha marta ko'rsatilgan</strong>. Bir odam 5 marta ko'rsa — 5 ta impression.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            100K impression, 60K reach → bitta odam o'rtacha <strong>1.67 marta</strong> ko'rgan
+          </div>
+          <div class="gls-rule">📌 Ko'p impression = ko'p chiqib turadi (chastotlikni kuzating)</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">ROAS</span><span class="gls-full">Return On Ad Spend</span></div>
+          <div class="gls-def">Reklama xarajatiga nisbatan olingan <strong>daromad</strong>. Qancha kira berdi?</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            $1000 sarflab $4200 daromad → ROAS = <strong>4.2x</strong>
+          </div>
+          <div class="gls-rule good">✓ 2x+ normal · 4x+ yaxshi · 6x+ a'lo</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Konversiya</span><span class="gls-full">Conversion Rate</span></div>
+          <div class="gls-def">Reklamani ko'rgan yoki bosganlardan <strong>nechi foizi</strong> maqsadli harakat qilgan (ariza, xarid va h.k.).</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            1000 klikdan 38 ariza → Konversiya = <strong>3.8%</strong>
+          </div>
+          <div class="gls-rule good">✓ 2–5% o'rtacha · 5%+ yaxshi</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Funnel</span><span class="gls-full">Konversiya zanjiri</span></div>
+          <div class="gls-def">Reklamadan natijagacha bo'lgan <strong>bosqichlar zanjiri</strong>: ko'rdi → bosdi → ariza qoldirdi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            100K ko'rdi → 3K bosdi (CTR 3%) → 90 ariza (CR 3%) = <strong>Funnel 3 bosqich</strong>
+          </div>
+          <div class="gls-rule">📌 Qaysi bosqichda ko'p yo'qolsa — o'sha joy muammo</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Lead</span><span class="gls-full">Murojaat / Ariza</span></div>
+          <div class="gls-def">Reklama orqali <strong>aloqa qoldirgan</strong> potensial mijoz: form to'ldirdi, xabar yozdi, qo'ng'iroq qildi.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            "Narxni bilmoqchiman" deb yozgan → <strong>1 lead</strong>
+          </div>
+          <div class="gls-rule">📌 Lead ≠ Mijoz. Leadni qayta ishlash sotuvning ishi</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">Budget</span><span class="gls-full">Byudjet taqsimoti</span></div>
+          <div class="gls-def">Kampaniyaga ajratilgan pul. <strong>Kunlik</strong> yoki <strong>umumiy</strong> bo'lishi mumkin.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Maslahat:</div>
+            Eng arzon CPL berganga ko'proq → eng qimmatiga kam byudjet
+          </div>
+          <div class="gls-rule good">✓ Samarali kampaniyaga byudjet ko'paytiriladi</div>
+        </div>
+
+        <div class="gls-card">
+          <div class="gls-top"><span class="gls-term">A/B Test</span><span class="gls-full">Split Test</span></div>
+          <div class="gls-def">Ikki xil reklama variantini <strong>parallel</strong> sinab, qaysi biri yaxshi ishlashini aniqlash.</div>
+          <div class="gls-example">
+            <div class="gls-eg-lbl">Misol:</div>
+            A: qizil tugma → 2.1% CTR &nbsp;|&nbsp; B: yashil tugma → 3.8% CTR → <strong>B yaxshi</strong>
+          </div>
+          <div class="gls-rule good">✓ Har doim A/B test — taxmin emas, ma'lumot</div>
+        </div>
+
+      </div><!-- /glossary-grid -->
 
     </div>
   </div>
