@@ -32,7 +32,10 @@ const App = (() => {
     const r = _reports[idx];
     if (!r) return;
     const label = r.meta?.platform || r.sourceFile || "Hisobot";
-    if (!confirm(`"${label}" hisobotini o'chirasizmi?`)) return;
+    const msg = window.I18n && I18n.getLang() === 'ru'
+      ? `Удалить отчёт "${label}"?`
+      : `"${label}" hisobotini o'chirasizmi?`;
+    if (!confirm(msg)) return;
     if (_onDelete) await _onDelete(r.id);
     _reports.splice(idx, 1);
     _channels = {};
@@ -127,8 +130,10 @@ const App = (() => {
     kpis.forEach(k => Utils.animateCounter(document.getElementById(k.id), k.val, k.pre, k.suf, k.dec));
 
     // ── KPI sub-labels ────────────────────────────────────────
-    _setText("kpiSpendSub",   campaigns.length+" ta kampaniya");
-    _setText("kpiResultsSub", campaigns[0]?.result_types?.[0]||"jami natija");
+    const _i = k => window.I18n ? I18n.t(k) : null;
+    const _nSfx = (n, key) => { const s = _i(key); return s ? n + ' ' + s : String(n); };
+    _setText("kpiSpendSub",   _nSfx(campaigns.length, 'kpi.n_campaigns'));
+    _setText("kpiResultsSub", campaigns[0]?.result_types?.[0] || (_i('kpi.total_results') || "jami natija"));
     _setText("kpiBestCplName",bestName.slice(0,16));
 
     // ── Trend badges (vs campaign average) ───────────────────
@@ -157,7 +162,8 @@ const App = (() => {
     Charts.renderSparkline("spk7", campaigns.map(c=>{const r=c.metrics?.reach||0,res=c.metrics?.results||0;return r>0?res/r*100:0;}), "#ec4899");
 
     // ── Campaign count ────────────────────────────────────────
-    _setText("campCount", campaigns.length+" ta");
+    const _cntSfx = window.I18n ? I18n.t('kpi.count_ta') : 'ta';
+    _setText("campCount", _cntSfx ? campaigns.length + ' ' + _cntSfx : String(campaigns.length));
 
     // ── Expose to assistant ───────────────────────────────────
     window._currentData = data;

@@ -263,6 +263,7 @@
     font-size: 11px; color: var(--muted);
   }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -271,8 +272,12 @@
   <div class="user-row">
     <img class="user-avatar" id="userAvatar" src="" alt="">
     <span id="userName"></span>
-    <a class="btn-link" href="dashboard.html">← Dashboard</a>
-    <button class="btn-link" id="logoutBtn">Chiqish</button>
+    <a class="btn-link" href="dashboard.html" data-i18n="upload.back">← Dashboard</a>
+    <button class="btn-link" id="logoutBtn" data-i18n="nav.logout">Chiqish</button>
+    <div class="upload-lang">
+      <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+      <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+    </div>
   </div>
 </div>
 
@@ -445,9 +450,13 @@
       if (!stillAllowed) { window.location.href = "paywall.html"; }
     }, 60000);
 
-    document.getElementById("userName").textContent  = user.displayName;
-    document.getElementById("userAvatar").src        = user.photoURL || "";
-    document.getElementById("userAvatar").style.display = user.photoURL ? "" : "none";
+    document.getElementById("userName").textContent = user.displayName || user.email || "";
+    if (user.photoURL) {
+      document.getElementById("userAvatar").src = user.photoURL;
+      document.getElementById("userAvatar").style.display = "";
+    } else {
+      document.getElementById("userAvatar").style.display = "none";
+    }
   });
 
   // ── Logout ────────────────────────────────────────────────────
@@ -741,13 +750,18 @@
 
 <script>
   function showInstr(platform) {
-    // Barcha panellarni yashir
     document.querySelectorAll(".instr-panel").forEach(p => p.classList.remove("show"));
     document.querySelectorAll(".ptab").forEach(t => t.classList.remove("active"));
-    // Tanlanganni ko'rsat
     document.getElementById("instr-" + platform).classList.add("show");
     event.currentTarget.classList.add("active");
   }
 </script>
+<script src="js/i18n.js"></script>
+<style>
+.upload-lang{display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;}
+.upload-lang .lang-btn{padding:5px 10px;font-size:11px;font-weight:600;background:transparent;border:none;cursor:pointer;color:#6b7280;font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
+.upload-lang .lang-btn:hover{color:#f0f0f0;}
+.upload-lang .lang-btn.active{background:rgba(200,255,0,.1);color:#c8ff00;}
+</style>
 </body>
 </html>

@@ -6,6 +6,7 @@
 <title>Targeet — Marketing Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -13,32 +14,32 @@
 
 <div class="loading-overlay show" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Yuklanmoqda...</div>
+  <div class="loading-text" id="loadingText" data-i18n="load.loading">Yuklanmoqda...</div>
 </div>
 
 <aside class="sidebar">
   <div class="sb-logo">TG</div>
   <a class="sb-item active" href="dashboard.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    <div class="sb-tooltip">Dashboard</div>
+    <div class="sb-tooltip" data-i18n="nav.dashboard">Dashboard</div>
   </a>
   <a class="sb-item" href="upload.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <div class="sb-tooltip">Yuklash</div>
+    <div class="sb-tooltip" data-i18n="nav.upload">Yuklash</div>
   </a>
   <a class="sb-item" href="#" onclick="document.getElementById('filterBar').scrollIntoView({behavior:'smooth'});return false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    <div class="sb-tooltip">Hisobotlar</div>
+    <div class="sb-tooltip" data-i18n="nav.reports">Hisobotlar</div>
   </a>
   <div class="sb-divider"></div>
   <a class="sb-item" href="admin.html">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    <div class="sb-tooltip">Admin</div>
+    <div class="sb-tooltip" data-i18n="nav.admin">Admin</div>
   </a>
   <div class="sb-bottom">
     <button class="sb-item" onclick="handleLogout()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      <div class="sb-tooltip">Chiqish</div>
+      <div class="sb-tooltip" data-i18n="nav.logout">Chiqish</div>
     </button>
   </div>
 </aside>
@@ -50,31 +51,35 @@
       <div class="period-pill" id="periodPill">—</div>
     </div>
     <div class="topbar-right">
+      <div class="lang-switch">
+        <button class="lang-btn active" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+        <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+      </div>
       <a href="upload.html" class="tb-btn primary">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Yuklash
+        <span data-i18n="top.upload_btn">Yuklash</span>
       </a>
       <div class="user-chip">
         <div id="userAvatarWrap"></div>
         <span class="u-name" id="userName">...</span>
       </div>
-      <button class="tb-btn ghost" onclick="handleLogout()">Chiqish</button>
+      <button class="tb-btn ghost" onclick="handleLogout()" data-i18n="nav.logout">Chiqish</button>
     </div>
   </header>
 
   <div class="filter-bar" id="filterBar" style="display:none">
-    <span class="filter-lbl">Hisobot:</span>
+    <span class="filter-lbl" data-i18n="filter.label">Hisobot:</span>
     <div id="filterPills" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;"></div>
   </div>
 
   <div class="page">
     <div class="empty-state" id="emptyState" style="display:none">
       <div class="empty-icon">📊</div>
-      <div class="empty-title">Hali ma'lumot yo'q</div>
-      <div class="empty-sub">Dashboardni ko'rish uchun reklama platformasi Excel hisobotingizni yuklang</div>
+      <div class="empty-title" data-i18n="empty.title">Hali ma'lumot yo'q</div>
+      <div class="empty-sub" data-i18n="empty.sub">Dashboardni ko'rish uchun reklama platformasi Excel hisobotingizni yuklang</div>
       <a href="upload.html" class="empty-cta">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Excel yuklash
+        <span data-i18n="empty.cta">Excel yuklash</span>
       </a>
     </div>
 
@@ -83,56 +88,56 @@
       <!-- ① KPI -->
       <div class="sec-hdr" style="margin-top:0">
         <div class="sec-dot" style="background:var(--accent)"></div>
-        <div class="sec-title">Asosiy ko'rsatkichlar</div>
+        <div class="sec-title" data-i18n="sec.kpis">Asosiy ko'rsatkichlar</div>
         <div class="sec-sub" id="reportDate"></div>
       </div>
       <div class="kpi-grid">
         <div class="kpi-card" style="--kc:#c8ff00">
-          <div class="kpi-top"><div class="kpi-label">Umumiy xarajat</div><div class="kpi-trend neu" id="trd0">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.spend">Umumiy xarajat</div><div class="kpi-trend neu" id="trd0">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiSpend">$0</div><div class="kpi-spark" id="spk0"></div></div>
           <div class="kpi-bot"><div class="kpi-sub" id="kpiSpendSub">—</div></div>
         </div>
         <div class="kpi-card" style="--kc:#22c55e">
-          <div class="kpi-top"><div class="kpi-label">Natijalar</div><div class="kpi-trend neu" id="trd1">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.results">Natijalar</div><div class="kpi-trend neu" id="trd1">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiResults">0</div><div class="kpi-spark" id="spk1"></div></div>
           <div class="kpi-bot"><div class="kpi-sub" id="kpiResultsSub">—</div></div>
         </div>
         <div class="kpi-card" style="--kc:#3b82f6">
-          <div class="kpi-top"><div class="kpi-label">O'rtacha CPL</div><div class="kpi-trend neu" id="trd2">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.cpl">O'rtacha CPL</div><div class="kpi-trend neu" id="trd2">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiCpl">$0</div><div class="kpi-spark" id="spk2"></div></div>
-          <div class="kpi-bot"><div class="kpi-sub">natija narxi</div></div>
+          <div class="kpi-bot"><div class="kpi-sub" data-i18n="kpi.result_price">natija narxi</div></div>
         </div>
         <div class="kpi-card" style="--kc:#f59e0b">
-          <div class="kpi-top"><div class="kpi-label">Impressions</div><div class="kpi-trend neu" id="trd3">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.impressions">Impressions</div><div class="kpi-trend neu" id="trd3">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiImpr">0</div><div class="kpi-spark" id="spk3"></div></div>
-          <div class="kpi-bot"><div class="kpi-sub">ko'rsatilishlar</div></div>
+          <div class="kpi-bot"><div class="kpi-sub" data-i18n="kpi.impressions">Impressions</div></div>
         </div>
         <div class="kpi-card" style="--kc:#a78bfa">
-          <div class="kpi-top"><div class="kpi-label">CPM</div><div class="kpi-trend neu" id="trd4">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.cpm">CPM</div><div class="kpi-trend neu" id="trd4">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiCpm">$0</div><div class="kpi-spark" id="spk4"></div></div>
-          <div class="kpi-bot"><div class="kpi-sub">1000 ko'rsatish</div></div>
+          <div class="kpi-bot"><div class="kpi-sub" data-i18n="kpi.per_1000">1000 ko'rsatish</div></div>
         </div>
         <div class="kpi-card" style="--kc:#06b6d4">
-          <div class="kpi-top"><div class="kpi-label">Reach</div><div class="kpi-trend neu" id="trd5">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.reach">Reach</div><div class="kpi-trend neu" id="trd5">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiReach">0</div><div class="kpi-spark" id="spk5"></div></div>
-          <div class="kpi-bot"><div class="kpi-sub">noyob users</div></div>
+          <div class="kpi-bot"><div class="kpi-sub" data-i18n="kpi.unique">noyob foydalanuvchi</div></div>
         </div>
         <div class="kpi-card" style="--kc:#f97316">
-          <div class="kpi-top"><div class="kpi-label">Eng yaxshi CPL</div><div class="kpi-trend good">✓ Top</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.best_cpl">Eng yaxshi CPL</div><div class="kpi-trend good">✓ Top</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiBestCpl">$0</div><div class="kpi-spark" id="spk6"></div></div>
           <div class="kpi-bot"><div class="kpi-sub" id="kpiBestCplName">—</div></div>
         </div>
         <div class="kpi-card" style="--kc:#ec4899">
-          <div class="kpi-top"><div class="kpi-label">Konversiya</div><div class="kpi-trend neu" id="trd7">—</div></div>
+          <div class="kpi-top"><div class="kpi-label" data-i18n="kpi.cr">Konversiya</div><div class="kpi-trend neu" id="trd7">—</div></div>
           <div class="kpi-mid"><div class="kpi-value" id="kpiCr">0%</div><div class="kpi-spark" id="spk7"></div></div>
-          <div class="kpi-bot"><div class="kpi-sub">reach → natija</div></div>
+          <div class="kpi-bot"><div class="kpi-sub" data-i18n="kpi.reach_res">reach → natija</div></div>
         </div>
       </div>
 
       <!-- ② Funnel -->
       <div class="sec-hdr">
         <div class="sec-dot" style="background:#3b82f6"></div>
-        <div class="sec-title">Konversiya funnel</div>
+        <div class="sec-title" data-i18n="sec.funnel">Konversiya funnel</div>
         <div class="sec-sub">Impressions → Reach → Natijalar (foiz asosida)</div>
       </div>
       <div class="funnel-card">
@@ -142,15 +147,15 @@
       <!-- ③ CPL + Spend -->
       <div class="sec-hdr">
         <div class="sec-dot" style="background:var(--accent)"></div>
-        <div class="sec-title">Kampaniyalar tahlili</div>
+        <div class="sec-title" data-i18n="sec.analysis">Kampaniyalar tahlili</div>
       </div>
       <div class="chart-grid c2">
         <div class="chart-card">
-          <div class="cc-title"><div class="cc-dot" style="background:#22c55e"></div>CPL — natija narxi (arzondan qimmatlga)</div>
+          <div class="cc-title"><div class="cc-dot" style="background:#22c55e"></div><span data-i18n="chart.cpl">CPL — natija narxi (arzondan qimmatlga)</span></div>
           <div id="chartCPL"></div>
         </div>
         <div class="chart-card">
-          <div class="cc-title"><div class="cc-dot" style="background:var(--accent)"></div>Xarajat — kampaniya bo'yicha ($)</div>
+          <div class="cc-title"><div class="cc-dot" style="background:var(--accent)"></div><span data-i18n="chart.spend">Xarajat — kampaniya bo'yicha ($)</span></div>
           <div id="chartSpend"></div>
         </div>
       </div>
@@ -160,26 +165,26 @@
         <div class="chart-card">
           <div class="cc-title">
             <div class="cc-dot" style="background:#a78bfa"></div>
-            CPM vs CPL — samaradorlik matritsasi
-            <span class="cc-sub">Past-chap = ideal</span>
+            <span data-i18n="chart.scatter">CPM vs CPL — samaradorlik matritsasi</span>
+            <span class="cc-sub" data-i18n="chart.scatter_sub">Past-chap = ideal</span>
           </div>
           <div id="chartScatter"></div>
         </div>
         <div class="chart-card">
-          <div class="cc-title"><div class="cc-dot" style="background:#f97316"></div>Kanal taqqoslash — eng arzon natija</div>
-          <div id="channelCompare"><div class="ch-empty">Bir necha platform faylini yuklang</div></div>
+          <div class="cc-title"><div class="cc-dot" style="background:#f97316"></div><span data-i18n="chart.channel">Kanal taqqoslash — eng arzon natija</span></div>
+          <div id="channelCompare"><div class="ch-empty" data-i18n="chart.channel_empty">Bir necha platform faylini yuklang</div></div>
         </div>
       </div>
 
       <!-- ⑤ Heatmap -->
       <div class="sec-hdr">
         <div class="sec-dot" style="background:#f59e0b"></div>
-        <div class="sec-title">Performance heatmap</div>
-        <div class="sec-sub">100 = eng yaxshi · 0 = eng past (kampaniyalar bo'yicha solishtirma ball)</div>
+        <div class="sec-title" data-i18n="sec.heatmap">Performance heatmap</div>
+        <div class="sec-sub" data-i18n="sec.heatmap_sub">100 = eng yaxshi · 0 = eng past (kampaniyalar bo'yicha solishtirma ball)</div>
       </div>
       <div class="chart-grid c1">
         <div class="chart-card">
-          <div class="cc-title"><div class="cc-dot" style="background:#f59e0b"></div>CPL · CPM · Natijalar · Impressions samaradorligi</div>
+          <div class="cc-title"><div class="cc-dot" style="background:#f59e0b"></div><span data-i18n="chart.heatmap">CPL · CPM · Natijalar · Impressions samaradorligi</span></div>
           <div id="chartHeatmap"></div>
         </div>
       </div>
@@ -187,16 +192,16 @@
       <!-- ⑥ Table -->
       <div class="sec-hdr">
         <div class="sec-dot" style="background:#a78bfa"></div>
-        <div class="sec-title">Kampaniyalar jadvali</div>
+        <div class="sec-title" data-i18n="sec.table">Kampaniyalar jadvali</div>
         <div class="sec-cnt" id="campCount">0 ta</div>
       </div>
       <div class="tbl-card">
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>Kampaniya</th><th>Natija turi</th><th>Holat</th>
-              <th>Xarajat</th><th>Natijalar</th><th>CPL</th>
-              <th>CPM</th><th>Impressions</th><th>Reach</th>
+              <th data-i18n="tbl.campaign">Kampaniya</th><th data-i18n="tbl.result_type">Natija turi</th><th data-i18n="tbl.status">Holat</th>
+              <th data-i18n="tbl.spend">Xarajat</th><th data-i18n="tbl.results">Natijalar</th><th data-i18n="tbl.cpl">CPL</th>
+              <th data-i18n="tbl.cpm">CPM</th><th data-i18n="tbl.impressions">Impressions</th><th data-i18n="tbl.reach">Reach</th>
             </tr></thead>
             <tbody id="campTableBody"></tbody>
           </table>
@@ -207,11 +212,140 @@
   </div>
 </div>
 
+<!-- ── ASSISTANT PANEL ───────────────────────────────────────── -->
+<div class="ast-overlay" id="astOverlay" onclick="astClose()"></div>
+
+<div class="ast-panel" id="astPanel">
+  <div class="ast-header">
+    <div class="ast-header-left">
+      <div class="ast-avatar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      </div>
+      <div>
+        <div class="ast-name" data-i18n="ast.name">Targeet Assistant</div>
+        <div class="ast-status"><span class="ast-dot"></span><span data-i18n="ast.status">Ma'lumotlarni tahlil qilaman</span></div>
+      </div>
+    </div>
+    <button class="ast-close" onclick="astClose()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="ast-body" id="astBody">
+    <div class="ast-welcome">
+      <div class="ast-welcome-icon">📊</div>
+      <div class="ast-welcome-title" data-i18n="ast.welcome">Marketing ma'lumotlaringizni tahlil qilaman</div>
+      <div class="ast-welcome-sub" data-i18n="ast.welcome_sub">Savol bering yoki quyidagi variantlardan tanlang</div>
+    </div>
+    <div class="ast-quick" id="astQuick"></div>
+  </div>
+
+  <div class="ast-footer">
+    <div class="ast-input-row">
+      <input class="ast-input" id="astInput" type="text" data-i18n-placeholder="ast.placeholder" placeholder="Savol yozing... (masalan: qaysi kanal yomoni?)" autocomplete="off"
+        onkeydown="if(event.key==='Enter')astSend()"/>
+      <button class="ast-send" onclick="astSend()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FAB BUTTON ────────────────────────────────────────────── -->
+<button class="ast-fab" id="astFab" onclick="astOpen()" title="Tahlil asistenti">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+  <span class="ast-fab-label" data-i18n="ast.fab">Tahlil</span>
+</button>
+
 <script src="assets/firebase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/app.js"></script>
+<script src="js/assistant.js"></script>
+<script>
+// ── ASSISTANT UI ─────────────────────────────────────────────
+function astOpen()  {
+  document.getElementById("astPanel").classList.add("open");
+  document.getElementById("astOverlay").classList.add("show");
+  document.getElementById("astInput").focus();
+}
+function astClose() {
+  document.getElementById("astPanel").classList.remove("open");
+  document.getElementById("astOverlay").classList.remove("show");
+}
+
+async function astSend() {
+  const input = document.getElementById("astInput");
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = "";
+  input.disabled = true;
+  _astAppend("user", q);
+  const typing = _astTyping();
+  const resp = await Assistant.answer(q);
+  typing.remove();
+  _astAppend("bot", resp);
+  input.disabled = false;
+  input.focus();
+}
+
+async function astQuick(key, label) {
+  const input = document.getElementById("astInput");
+  input.disabled = true;
+  _astAppend("user", label);
+  const typing = _astTyping();
+  const resp = await Assistant.answer(key);
+  typing.remove();
+  _astAppend("bot", resp);
+  input.disabled = false;
+}
+
+function _astTyping() {
+  const body = document.getElementById("astBody");
+  const el = document.createElement("div");
+  el.className = "ast-msg ast-msg-bot ast-typing";
+  el.innerHTML = "<span></span><span></span><span></span>";
+  body.appendChild(el);
+  body.scrollTop = body.scrollHeight;
+  return el;
+}
+
+function _astAppend(role, html) {
+  const body = document.getElementById("astBody");
+  // Hide welcome on first message
+  const welcome = body.querySelector(".ast-welcome");
+  if (welcome) welcome.style.display = "none";
+  const quick = body.querySelector(".ast-quick");
+  if (quick) quick.style.display = "none";
+
+  const msg = document.createElement("div");
+  msg.className = "ast-msg ast-msg-" + role;
+  if (role === "user") {
+    msg.textContent = html;
+  } else {
+    msg.innerHTML = html;
+  }
+  body.appendChild(msg);
+  body.scrollTop = body.scrollHeight;
+}
+
+// Build quick chips after DOM loads
+document.addEventListener("DOMContentLoaded", () => {
+  const wrap = document.getElementById("astQuick");
+  if (!wrap) return;
+  Assistant.QUICK.forEach(q => {
+    const btn = document.createElement("button");
+    btn.className = "ast-chip";
+    const label = (window.I18n ? I18n.t(q.i18n) : null) || q.i18n;
+    btn.textContent = label;
+    btn.setAttribute('data-i18n', q.i18n);
+    btn.onclick = () => astQuick(q.key, btn.textContent);
+    wrap.appendChild(btn);
+  });
+});
+</script>
 
 <script type="module">
 import { initializeApp }     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -263,7 +397,7 @@ onAuthStateChanged(auth, async user => {
   }
   document.getElementById("userName").textContent = user.displayName||user.email||"";
 
-  document.getElementById("loadingText").textContent = "Ma'lumotlar yuklanmoqda...";
+  document.getElementById("loadingText").textContent = window.I18n ? I18n.t('load.data') : "Ma'lumotlar yuklanmoqda...";
   try {
     const q       = query(collection(db,"users",user.uid,"reports"), orderBy("uploadedAt","desc"));
     const snap    = await getDocs(q);

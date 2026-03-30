@@ -251,19 +251,20 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
 /* EMPTY */
 .empty-row td { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
 <div class="loading-overlay show" id="loadingOverlay">
   <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Tekshirilmoqda...</div>
+  <div class="loading-text" id="loadingText" data-i18n="load.checking">Tekshirilmoqda...</div>
 </div>
 
 <header>
   <div class="logo">MARKETING DASHBOARD <span>ADMIN</span></div>
   <div class="header-right">
     <span class="user-name" id="userName"></span>
-    <button class="logout-btn" onclick="handleLogout()">Chiqish</button>
+    <button class="logout-btn" onclick="handleLogout()" data-i18n="nav.logout">Chiqish</button>
   </div>
 </header>
 
@@ -561,12 +562,22 @@ tbody td { padding: 11px 14px; font-size: 13px; white-space: nowrap; }
   };
 
   // ── TOAST ─────────────────────────────────────────────────────
-  function toast(type, msg) {
+  function toast(type, msg) { // eslint-disable-next-line no-unused-vars
     const el = document.getElementById("toast");
     el.textContent = msg;
     el.className = "toast show " + type;
     setTimeout(() => { el.className = "toast"; }, 3000);
   }
 </script>
+<script src="js/i18n.js"></script>
+<style>
+.admin-lang{position:fixed;top:16px;right:100px;z-index:200;display:flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;overflow:hidden;}
+.admin-lang .lang-btn{padding:5px 10px;font-size:11px;font-weight:600;background:transparent;border:none;cursor:pointer;color:#6b7280;font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
+.admin-lang .lang-btn.active{background:rgba(200,255,0,.1);color:#c8ff00;}
+</style>
+<div class="admin-lang" id="adminLang">
+  <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+  <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+</div>
 </body>
 </html>

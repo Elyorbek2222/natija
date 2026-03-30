@@ -291,6 +291,7 @@ main {
 .check-result.ok    { color: var(--green); }
 .check-result.error { color: var(--red); }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -305,7 +306,7 @@ main {
   <div class="logo">MARKETING DASHBOARD</div>
   <div class="header-right">
     <span class="user-name" id="userName"></span>
-    <button class="logout-btn" onclick="handleLogout()">Chiqish</button>
+    <button class="logout-btn" onclick="handleLogout()" data-i18n="nav.logout">Chiqish</button>
   </div>
 </header>
 
@@ -326,7 +327,7 @@ main {
   </div>
   <div class="hero-tagline">
     <p class="hero-channels">Meta Ads · Google Ads · Telegram Ads · Yandex · TikTok · myTarget</p>
-    <h2 class="hero-title">Barcha reklama kanallarini<br><span>bitta platformada</span> kuzating</h2>
+    <h2 class="hero-title" data-i18n-html="pay.title">Barcha reklama kanallarini<br><span>bitta platformada</span> kuzating</h2>
   </div>
 </section>
 
@@ -663,5 +664,16 @@ main {
     });
   });
 </script>
+<script src="js/i18n.js"></script>
+<style>
+.pay-lang{position:fixed;top:16px;right:16px;z-index:200;display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
+.pay-lang .lang-btn{padding:5px 10px;font-size:11px;font-weight:600;background:transparent;border:none;cursor:pointer;color:rgba(240,240,240,.5);font-family:'Inter',sans-serif;transition:background .15s,color .15s;}
+.pay-lang .lang-btn:hover{color:#f0f0f0;}
+.pay-lang .lang-btn.active{background:rgba(200,255,0,.12);color:#c8ff00;}
+</style>
+<div class="pay-lang">
+  <button class="lang-btn" data-lang="uz" onclick="I18n.set('uz')">UZ</button>
+  <button class="lang-btn" data-lang="ru" onclick="I18n.set('ru')">RU</button>
+</div>
 </body>
 </html>

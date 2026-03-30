@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Targeet — Analitik Tahlil</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:wght@700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.min.js"></script>
+<style>
+:root {
+  --bg-deep:    #08090d;
+  --bg-base:    #0d0f14;
+  --bg-card:    #1a1d28;
+  --bg-el:      #14161e;
+  --border:     rgba(255,255,255,0.07);
+  --accent:     #c8ff00;
+  --accent-dim: rgba(200,255,0,0.10);
+  --green:      #22c55e;
+  --blue:       #60a5fa;
+  --yellow:     #f59e0b;
+  --purple:     #a78bfa;
+  --red:        #ef4444;
+  --text:       #f0f2f5;
+  --muted:      rgba(240,242,245,0.45);
+  --sidebar-w:  62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{background:var(--bg-deep);color:var(--text);font-family:'Inter',sans-serif;display:flex;}
+
+/* SCROLL PROGRESS */
+#scrollBar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:2px;background:linear-gradient(90deg,var(--accent),#60a5fa);width:0%;z-index:500;transition:width 0.1s;}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);
+  background:var(--bg-el);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px 0;z-index:200;gap:4px;
+}
+.sb-logo{
+  font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;
+  color:var(--accent);letter-spacing:0.06em;
+  writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
+  margin-bottom:16px;white-space:nowrap;
+}
+.sb-item{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s,color .15s;
+  color:var(--muted);position:relative;text-decoration:none;
+}
+.sb-item:hover{background:rgba(255,255,255,0.06);color:var(--text);}
+.sb-item.active{background:var(--accent-dim);color:var(--accent);}
+.sb-item svg{width:18px;height:18px;stroke-width:1.8;}
+.sb-tooltip{
+  position:absolute;left:calc(100% + 8px);background:var(--bg-card);
+  border:1px solid var(--border);border-radius:6px;padding:4px 10px;
+  font-size:11px;color:var(--text);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .15s;z-index:300;
+}
+.sb-item:hover .sb-tooltip{opacity:1;}
+.sb-divider{width:28px;height:1px;background:var(--border);margin:6px 0;}
+.sb-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:4px;}
+
+/* MAIN */
+.main-wrap{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{
+  height:58px;background:var(--bg-el);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--text);letter-spacing:0.04em;}
+.period-pill{font-size:11px;color:var(--muted);background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{
+  display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  text-decoration:none;transition:opacity .15s;border:none;
+}
+.tb-btn.primary{background:var(--accent);color:#08090d;}
+.tb-btn.primary:hover{opacity:.88;}
+.tb-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.tb-btn.ghost:hover{border-color:rgba(200,255,0,.3);color:var(--text);}
+
+/* PAGE */
+.page{max-width:1360px;margin:0 auto;padding:28px 24px 80px;}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;margin-top:32px;}
+.sec-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sec-title{font-size:13px;font-weight:600;color:var(--text);}
+.sec-sub{font-size:12px;color:var(--muted);}
+
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:4px;}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:1fr;}}
+.kpi-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:14px;padding:18px 18px 14px;position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;cursor:default;
+}
+.kpi-card:hover{
+  border-color:color-mix(in srgb,var(--kc,var(--accent)) 40%,transparent);
+  box-shadow:0 0 22px color-mix(in srgb,var(--kc,var(--accent)) 12%,transparent);
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--accent));}
+.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;}
+.kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;}
+.kpi-value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--text);line-height:1;}
+.kpi-spark{flex-shrink:0;}
+.kpi-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.kpi-sub{font-size:11px;color:var(--muted);}
+.kpi-badge{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;
+  display:inline-flex;align-items:center;gap:3px;
+}
+.kpi-badge.good{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2);}
+.kpi-badge.warn{background:rgba(245,158,11,.10);color:#f59e0b;border:1px solid rgba(245,158,11,.2);}
+.kpi-badge.bad {background:rgba(239,68,68,.10);color:#ef4444;border:1px solid rgba(239,68,68,.2);}
+.kpi-badge.neu {background:rgba(255,255,255,.05);color:var(--muted);}
+
+/* INSIGHTS */
+.insights-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media(max-width:860px){.insights-grid{grid-template-columns:1fr;}}
+
+.insight-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:14px;padding:18px 20px;
+  border-left:3px solid var(--ic,var(--accent));
+  transition:box-shadow .2s;
+}
+.insight-card:hover{box-shadow:0 0 20px color-mix(in srgb,var(--ic,var(--accent)) 10%,transparent);}
+.ins-type{
+  font-size:9px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ic,var(--accent));margin-bottom:8px;font-weight:700;
+}
+.ins-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.ins-fact{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:12px;}
+.ins-divider{height:1px;background:var(--border);margin-bottom:10px;}
+.ins-action{
+  font-size:12px;font-weight:600;
+  color:var(--ic,var(--accent));
+  display:flex;align-items:flex-start;gap:7px;line-height:1.5;
+}
+.ins-arrow{font-size:14px;flex-shrink:0;margin-top:-1px;}
+
+/* CHART CARDS */
+.chart-grid{display:grid;gap:16px;margin-bottom:4px;}
+.chart-grid.cols2{grid-template-columns:1fr 1fr;}
+.chart-grid.cols3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:860px){.chart-grid.cols2,.chart-grid.cols3{grid-template-columns:1fr;}}
+.chart-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:14px;padding:20px 20px 12px;
+  transition:border-color .2s,box-shadow .2s;
+}
+.chart-card:hover{border-color:rgba(200,255,0,0.15);box-shadow:0 0 28px rgba(200,255,0,0.05);}
+.cc-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+.cc-dot{width:7px;height:7px;border-radius:50%;}
+
+/* FUNNEL */
+.funnel-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;}
+.funnel-steps{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;}
+.funnel-step{
+  flex:1;min-width:110px;background:var(--bg-el);border:1px solid var(--border);
+  border-radius:10px;padding:14px 12px;position:relative;transition:border-color .2s;
+}
+.funnel-step:hover{border-color:rgba(200,255,0,.25);}
+.f-arr{font-size:16px;color:var(--border);padding:0 6px;align-self:center;flex-shrink:0;}
+.f-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;}
+.f-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--text);line-height:1;margin-bottom:2px;}
+.f-sub{font-size:10px;color:var(--muted);}
+.f-pct{font-size:10px;font-weight:700;margin-top:6px;padding:1px 6px;border-radius:3px;display:inline-block;}
+.f-bar{position:absolute;bottom:0;left:0;height:2px;border-radius:0 0 10px 10px;transition:width .8s ease;}
+
+/* CPL RANK */
+.cpl-rank{display:flex;flex-direction:column;gap:10px;}
+.cpl-row{display:flex;align-items:center;gap:12px;}
+.cpl-num{font-size:10px;color:var(--muted);width:14px;text-align:right;flex-shrink:0;}
+.cpl-name{font-size:11px;font-weight:600;color:var(--text);width:160px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cpl-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.cpl-bar-fill{height:100%;border-radius:4px;transition:width .8s ease;}
+.cpl-val{font-size:12px;font-weight:700;width:54px;text-align:right;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.cpl-badge-best{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(200,255,0,.1);color:var(--accent);border:1px solid rgba(200,255,0,.2);flex-shrink:0;}
+.cpl-badge-bad {font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);flex-shrink:0;}
+.cpl-badge-ph  {width:60px;flex-shrink:0;}
+
+/* QUESTIONS CARD */
+.q-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;}
+.q-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.q-list{display:flex;flex-direction:column;gap:10px;}
+.q-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;background:var(--bg-el);border:1px solid var(--border);
+  border-radius:10px;transition:border-color .15s;
+}
+.q-item:hover{border-color:rgba(200,255,0,.2);}
+.q-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.q-text{font-size:12px;color:var(--text);line-height:1.55;}
+.q-tag{font-size:10px;color:var(--muted);margin-top:3px;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .main-wrap{margin-left:0;}
+  #scrollBar{left:0;}
+}
+</style>
+</head>
+<body>
+
+<div id="scrollBar"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sb-logo">TG</div>
+
+  <a class="sb-item" href="dashboard.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    <div class="sb-tooltip">Dashboard</div>
+  </a>
+
+  <a class="sb-item active" href="analyst.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 20h20M5 20V10l7-7 7 7v10"/><path d="M9 20v-5h6v5"/></svg>
+    <div class="sb-tooltip">Tahlil</div>
+  </a>
+
+  <a class="sb-item" href="upload.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="sb-tooltip">Yuklash</div>
+  </a>
+
+  <div class="sb-divider"></div>
+
+  <a class="sb-item" href="admin.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <div class="sb-tooltip">Admin</div>
+  </a>
+</aside>
+
+<!-- Main -->
+<div class="main-wrap">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">Analitik Tahlil</div>
+      <div class="period-pill">01 Mar – 26 Mar 2026</div>
+    </div>
+    <div class="topbar-right">
+      <a href="dashboard.html" class="tb-btn ghost">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="upload.html" class="tb-btn primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Yuklash
+      </a>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- ─── KPI CARDS ─── -->
+    <div class="sec-hdr" style="margin-top:0;">
+      <div class="sec-dot" style="background:var(--accent)"></div>
+      <div class="sec-title">Asosiy ko'rsatkichlar</div>
+      <div class="sec-sub">Meta Ads · 6 kampaniya</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kc:#c8ff00">
+        <div class="kpi-label">Umumiy Bujet</div>
+        <div class="kpi-row">
+          <div class="kpi-value">$470</div>
+          <div class="kpi-spark" id="spk0"></div>
+        </div>
+        <div class="kpi-footer">
+          <div class="kpi-sub">6 ta kampaniya</div>
+          <div class="kpi-badge neu">Mar 2026</div>
+        </div>
+      </div>
+      <div class="kpi-card" style="--kc:#22c55e">
+        <div class="kpi-label">Jami Natijalar</div>
+        <div class="kpi-row">
+          <div class="kpi-value">575</div>
+          <div class="kpi-spark" id="spk1"></div>
+        </div>
+        <div class="kpi-footer">
+          <div class="kpi-sub">lead + suhbat</div>
+          <div class="kpi-badge good">↑ Aktiv</div>
+        </div>
+      </div>
+      <div class="kpi-card" style="--kc:#60a5fa">
+        <div class="kpi-label">Eng Yaxshi CPL</div>
+        <div class="kpi-row">
+          <div class="kpi-value">$0.44</div>
+          <div class="kpi-spark" id="spk2"></div>
+        </div>
+        <div class="kpi-footer">
+          <div class="kpi-sub">SMS kampaniya</div>
+          <div class="kpi-badge good">✓ Top</div>
+        </div>
+      </div>
+      <div class="kpi-card" style="--kc:#f59e0b">
+        <div class="kpi-label">O'rtacha CPL</div>
+        <div class="kpi-row">
+          <div class="kpi-value">$0.82</div>
+          <div class="kpi-spark" id="spk3"></div>
+        </div>
+        <div class="kpi-footer">
+          <div class="kpi-sub">barcha kampaniyalar</div>
+          <div class="kpi-badge warn">Farq katta</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── INSIGHTS ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:#22c55e"></div>
+      <div class="sec-title">Inсайтlar — Kanal tahlili</div>
+      <div class="sec-sub">Fakt → Xulosa → Harakat</div>
+    </div>
+    <div class="insights-grid">
+
+      <div class="insight-card" style="--ic:#c8ff00">
+        <div class="ins-type">Kanal-Lider</div>
+        <div class="ins-title">SMS kampaniya — eng samarali</div>
+        <div class="ins-fact">
+          "Antaliya oldindan bron uchun SMS" — CPL <strong style="color:#c8ff00">$0.44</strong>, barcha natijalarning <strong style="color:#c8ff00">55.5%</strong>i (319/575) faqat shu kampaniyadan. Bujetning 30%i bilan yarim natijani berdi. CPM $0.65 — eng arzon ko'rsatish.
+        </div>
+        <div class="ins-divider"></div>
+        <div class="ins-action"><span class="ins-arrow">→</span>Ushbu kampaniya bujetini 20–30% oshiring. Kreativlarni yangilang, audience kengaytiring.</div>
+      </div>
+
+      <div class="insight-card" style="--ic:#ef4444">
+        <div class="ins-type">Kanal-Autstayder</div>
+        <div class="ins-title">Ru lid form — bujetni yeydi, natija bermaydi</div>
+        <div class="ins-fact">
+          "ZF | Ru lid form" — CPL <strong style="color:#ef4444">$8.37</strong>, atigi 1 natija. Liderdan <strong style="color:#ef4444">19x qimmat</strong>. $8.37 sarflandi, 1,567 ta ko'rsatish, 1,368 reach — juda past konversiya. Ehtimol, auditoriya noto'g'ri yoki kreativ ishlamayapti.
+        </div>
+        <div class="ins-divider"></div>
+        <div class="ins-action"><span class="ins-arrow">→</span>Ushbu kampaniyani to'xtatib qo'ying yoki minimumga tushuring. Budjetni SMS kampaniyasiga yo'ldiring.</div>
+      </div>
+
+      <div class="insight-card" style="--ic:#60a5fa">
+        <div class="ins-type">Voronkadagi Teshik</div>
+        <div class="ins-title">399K ko'rsatish → 575 natija = 0.14%</div>
+        <div class="ins-fact">
+          Impressions 399,258 → Reach 339,382 (85%) → Natijalar 575. Reach dan natijaga konversiya — <strong style="color:#60a5fa">0.17%</strong>. Ko'pchilik foydalanuvchi reklamani ko'radi lekin kirmaydi. Muammo reklama textida yoki landing sahifada.
+        </div>
+        <div class="ins-divider"></div>
+        <div class="ins-action"><span class="ins-arrow">→</span>Podratchiга savol: "Call-to-action matnini qachon o'zgartirdingiz? A/B test bormи?"</div>
+      </div>
+
+      <div class="insight-card" style="--ic:#f59e0b">
+        <div class="ins-type">Anomaliya</div>
+        <div class="ins-title">CPL farqi — $0.44 dan $8.37 gacha (19x)</div>
+        <div class="ins-fact">
+          Bir xil platformada (Meta Ads) CPL 19 marta farq qiladi. Bu auditoriya segmenti, kreativ yoki bid strategiyasi masalasi. <strong style="color:#f59e0b">Andromeda mix</strong> (CPL $0.91) va <strong style="color:#f59e0b">Antaliya kampaniyalari</strong> (CPL $1.62) — o'rta segment, ularni optimizatsiya qilsa bo'ladi.
+        </div>
+        <div class="ins-divider"></div>
+        <div class="ins-action"><span class="ins-arrow">→</span>Podratchiдан: "SMS kampaniya audience'ini Andromeda va Antaliyaga nusxa olib, test qiling."</div>
+      </div>
+
+    </div>
+
+    <!-- ─── TRAFFIC AREA CHART ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:var(--accent)"></div>
+      <div class="sec-title">Kampaniyalar bo'yicha Impressions va Reach</div>
+      <div class="sec-sub">Trafikni taqsimlanishi</div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title"><div class="cc-dot" style="background:var(--accent)"></div>Impressions va Reach — kampaniya kesimida</div>
+      <div id="chartArea"></div>
+    </div>
+
+    <!-- ─── CPL RANK + SCATTER ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:#22c55e"></div>
+      <div class="sec-title">CPL Taqqoslash va Samaradorlik Matritsasi</div>
+    </div>
+    <div class="chart-grid cols2">
+      <div class="chart-card">
+        <div class="cc-title"><div class="cc-dot" style="background:#22c55e"></div>Gorizontal bar — CPL eng arzondan qimmatga</div>
+        <div class="cpl-rank" id="cplRank"></div>
+      </div>
+      <div class="chart-card">
+        <div class="cc-title"><div class="cc-dot" style="background:#a78bfa"></div>CPM vs CPL — samaradorlik matritsasi</div>
+        <div id="chartScatter"></div>
+      </div>
+    </div>
+
+    <!-- ─── FUNNEL ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:#60a5fa"></div>
+      <div class="sec-title">Voronka — Ko'rsatishdan Natijagacha</div>
+    </div>
+    <div class="funnel-card">
+      <div class="funnel-steps" id="funnelSteps"></div>
+    </div>
+
+    <!-- ─── SPEND BAR ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:#f59e0b"></div>
+      <div class="sec-title">Bujet taqsimoti va Natijalar</div>
+    </div>
+    <div class="chart-grid cols2">
+      <div class="chart-card">
+        <div class="cc-title"><div class="cc-dot" style="background:#f59e0b"></div>Xarajat (USD) — kampaniya bo'yicha</div>
+        <div id="chartSpend"></div>
+      </div>
+      <div class="chart-card">
+        <div class="cc-title"><div class="cc-dot" style="background:#22c55e"></div>Natijalar soni — kampaniya bo'yicha</div>
+        <div id="chartResults"></div>
+      </div>
+    </div>
+
+    <!-- ─── CONTRACTOR QUESTIONS ─── -->
+    <div class="sec-hdr">
+      <div class="sec-dot" style="background:#a78bfa"></div>
+      <div class="sec-title">Podratchi bilan suhbat uchun savollar</div>
+      <div class="sec-sub">Ma'lumotlardan kelib chiqqan holda</div>
+    </div>
+    <div class="q-card">
+      <div class="q-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Tayyorlangan savollar roʻyxati
+      </div>
+      <div class="q-list">
+        <div class="q-item">
+          <div class="q-icon">📊</div>
+          <div>
+            <div class="q-text">"SMS kampaniya audience'i qanday segment? Shu audience'ni Andromeda mix va Antaliya kampaniyalariga lookalike qilib test qilib ko'rdingizmi?"</div>
+            <div class="q-tag">CPL 19x farq → auditoriya masalasi</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-icon">🛑</div>
+          <div>
+            <div class="q-text">"ZF | Ru lid form 17.03 da nima uchun faqat 1 natija berdi? $8.37 — juda qimmat. Ushbu kampaniyani to'xtatib, bujetni SMS kampaniyasiga yo'naltira olamizmi?"</div>
+            <div class="q-tag">$8.37 CPL → darhol to'xtatish kerak</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-icon">🎯</div>
+          <div>
+            <div class="q-text">"Reach 339K dan faqat 575 natija — 0.17% konversiya. Call-to-action yoki landing page A/B test qildingizmi? Oxirgi marta matnni qachon o'zgartirdingiz?"</div>
+            <div class="q-tag">Voronkadagi teshik → CTA optimizatsiyasi</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-icon">💰</div>
+          <div>
+            <div class="q-text">"SMS kampaniya barcha natijalarning 55%ini berdi — 30% bujet bilan. Ushbu kampaniya bujetini 20-30% oshirib, kreativlari sonini ko'paytirsak nima bo'ladi?"</div>
+            <div class="q-tag">Lider kampaniyani shkalalanishi</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-icon">📅</div>
+          <div>
+            <div class="q-text">"Maldiv, Sharm, Nyanchang kampaniyasi 02.10 dan beri aktiv — 11 kun ichida 37 natija, CPL $1.62. Nima uchun yangi aktiv davrlarda CPL pasaymaydi? Bid strategiyani ko'rib chiqdingizmi?"</div>
+            <div class="q-tag">Eskirgan kampaniya → refresh kerak</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main-wrap -->
+
+<script>
+window.addEventListener("scroll", () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  document.getElementById("scrollBar").style.width = Math.min(pct, 100) + "%";
+});
+
+// ─── DATA ───────────────────────────────────────────────────────
+const CAMPAIGNS = [
+  { name:"Andromeda mix",         spent:118.76, results:131, cpl:0.91,  impr:44523,  reach:39356,  cpm:2.67 },
+  { name:"Antaliya SMS bron",     spent:141.55, results:319, cpl:0.44,  impr:217735, reach:173659, cpm:0.65 },
+  { name:"Antaliya bron ABO",     spent:104.46, results:64,  cpl:1.63,  impr:47061,  reach:42001,  cpm:2.22 },
+  { name:"Antaliya premium",      spent:37.27,  results:23,  cpl:1.62,  impr:21409,  reach:19692,  cpm:1.74 },
+  { name:"Maldiv/Sharm/Nyang",    spent:59.95,  results:37,  cpl:1.62,  impr:66963,  reach:63306,  cpm:0.90 },
+  { name:"Ru lid form",           spent:8.37,   results:1,   cpl:8.37,  impr:1567,   reach:1368,   cpm:5.34 },
+];
+
+const COLORS = ["#c8ff00","#22c55e","#60a5fa","#f59e0b","#a78bfa","#ef4444"];
+const APEX_BASE = {
+  chart:{ background:"transparent", toolbar:{show:false}, fontFamily:"Inter, sans-serif" },
+  theme:{ mode:"dark" },
+  grid:{ borderColor:"rgba(255,255,255,0.06)", strokeDashArray:3 },
+  dataLabels:{ enabled:false },
+  legend:{ show:false },
+};
+
+const labels = CAMPAIGNS.map(c=>c.name);
+
+// ─── SPARKLINES ──────────────────────────────────────────────────
+function spark(id, data, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  new ApexCharts(el, {
+    chart:{ type:"area", height:38, width:80, sparkline:{enabled:true}, background:"transparent" },
+    series:[{data}], colors:[color],
+    stroke:{width:1.5, curve:"smooth"},
+    fill:{type:"gradient", gradient:{shadeIntensity:1,opacityFrom:0.4,opacityTo:0,stops:[0,100]}},
+    tooltip:{enabled:false}, theme:{mode:"dark"},
+  }).render();
+}
+spark("spk0", CAMPAIGNS.map(c=>c.spent),   "#c8ff00");
+spark("spk1", CAMPAIGNS.map(c=>c.results), "#22c55e");
+spark("spk2", CAMPAIGNS.map(c=>c.cpl).sort((a,b)=>a-b), "#60a5fa");
+spark("spk3", CAMPAIGNS.map(c=>c.cpl),    "#f59e0b");
+
+// ─── AREA CHART ──────────────────────────────────────────────────
+new ApexCharts(document.getElementById("chartArea"), {
+  ...APEX_BASE,
+  chart:{ ...APEX_BASE.chart, type:"area", height:280 },
+  series:[
+    { name:"Impressions", data: CAMPAIGNS.map(c=>c.impr) },
+    { name:"Reach",       data: CAMPAIGNS.map(c=>c.reach) },
+  ],
+  xaxis:{ categories:labels, labels:{ style:{colors:"#6b7280",fontSize:"10px"}, trim:true, maxHeight:60 } },
+  yaxis:{ labels:{ style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>v>=1000?(v/1000).toFixed(0)+"K":v } },
+  colors:["#c8ff00","#60a5fa"],
+  stroke:{ width:[2,2], curve:"smooth" },
+  fill:{
+    type:"gradient",
+    gradient:{ shadeIntensity:1, opacityFrom:0.3, opacityTo:0.02, stops:[0,95] }
+  },
+  tooltip:{
+    theme:"dark",
+    y:[{formatter:v=>v.toLocaleString("ru")},{formatter:v=>v.toLocaleString("ru")}]
+  },
+  legend:{ show:true, position:"top", labels:{colors:"#9ca3af"} },
+}).render();
+
+// ─── CPL RANK BAR ────────────────────────────────────────────────
+const sorted = [...CAMPAIGNS].sort((a,b)=>a.cpl-b.cpl);
+const maxCpl = sorted[sorted.length-1].cpl;
+document.getElementById("cplRank").innerHTML = sorted.map((c,i)=>`
+  <div class="cpl-row">
+    <div class="cpl-num">${i+1}</div>
+    <div class="cpl-name">${c.name}</div>
+    <div class="cpl-bar-bg">
+      <div class="cpl-bar-fill" style="background:${COLORS[i]};width:${(c.cpl/maxCpl*100).toFixed(1)}%"></div>
+    </div>
+    <div class="cpl-val" style="color:${COLORS[i]}">$${c.cpl.toFixed(2)}</div>
+    ${i===0?'<div class="cpl-badge-best">✓ Eng arzon</div>':i===sorted.length-1?'<div class="cpl-badge-bad">✗ Eng qimmat</div>':'<div class="cpl-badge-ph"></div>'}
+  </div>
+`).join("");
+
+// ─── SCATTER ────────────────────────────────────────────────────
+const scatterPts = CAMPAIGNS.map(c=>({x:c.cpm, y:c.cpl}));
+new ApexCharts(document.getElementById("chartScatter"), {
+  ...APEX_BASE,
+  chart:{ ...APEX_BASE.chart, type:"scatter", height:280 },
+  series:[{ name:"Kampaniya", data:scatterPts.map(p=>({x:p.x,y:p.y})) }],
+  xaxis:{
+    title:{ text:"CPM ($)", style:{color:"#6b7280",fontSize:"10px"} },
+    labels:{ style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+v.toFixed(2) },
+    min:0, max:7,
+  },
+  yaxis:{
+    title:{ text:"CPL ($)", style:{color:"#6b7280",fontSize:"10px"} },
+    labels:{ style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+v.toFixed(2) },
+    min:0, max:10,
+  },
+  colors:["#a78bfa"],
+  markers:{ size:9, strokeWidth:0, hover:{size:11} },
+  tooltip:{
+    theme:"dark",
+    custom:({dataPointIndex})=>`
+      <div style="padding:10px 14px;background:#1a1d28;border:1px solid rgba(255,255,255,.1);border-radius:8px;font-size:11px;line-height:1.6">
+        <b style="color:#f0f2f5">${CAMPAIGNS[dataPointIndex]?.name||""}</b><br>
+        <span style="color:#a78bfa">CPM:</span> $${CAMPAIGNS[dataPointIndex]?.cpm.toFixed(2)||0}<br>
+        <span style="color:#c8ff00">CPL:</span> $${CAMPAIGNS[dataPointIndex]?.cpl.toFixed(2)||0}
+      </div>`
+  },
+}).render();
+
+// ─── FUNNEL ─────────────────────────────────────────────────────
+const totImpr   = CAMPAIGNS.reduce((s,c)=>s+c.impr,0);
+const totReach  = CAMPAIGNS.reduce((s,c)=>s+c.reach,0);
+const totRes    = CAMPAIGNS.reduce((s,c)=>s+c.results,0);
+const totSpend  = CAMPAIGNS.reduce((s,c)=>s+c.spent,0);
+const avgCpl    = totSpend/totRes;
+const avgCpm    = totSpend/totImpr*1000;
+
+const funnelSteps = [
+  { lbl:"Xarajat",     val:"$"+totSpend.toFixed(0), sub:"Jami sarflangan",  color:"#c8ff00",  pct:100 },
+  { lbl:"Impressions", val:fmt(totImpr),             sub:"Ko'rsatishlar",    color:"#818cf8",  pct:100 },
+  { lbl:"Reach",       val:fmt(totReach),            sub:"Noyob foydalanuvchi", color:"#60a5fa", pct:Math.round(totReach/totImpr*100) },
+  { lbl:"Natijalar",   val:totRes.toLocaleString("ru"), sub:"Konversiya",    color:"#22c55e",  pct:Math.round(totRes/totImpr*1000)/10 },
+  { lbl:"Avg CPL",     val:"$"+avgCpl.toFixed(2),   sub:"Natija narxi",     color:"#f59e0b",  pct:100 },
+];
+document.getElementById("funnelSteps").innerHTML = funnelSteps.map((s,i)=>`
+  ${i>0?'<div class="f-arr">→</div>':''}
+  <div class="funnel-step">
+    <div class="f-lbl">${s.lbl}</div>
+    <div class="f-val">${s.val}</div>
+    <div class="f-sub">${s.sub}</div>
+    ${i>0&&i<4?`<div class="f-pct" style="background:${s.color}22;color:${s.color}">${s.pct}%</div>`:''}
+    <div class="f-bar" style="background:${s.color};width:${s.pct}%"></div>
+  </div>
+`).join("");
+
+function fmt(n){ return n>=1000000?(n/1000000).toFixed(1)+"M":n>=1000?(n/1000).toFixed(0)+"K":n.toLocaleString("ru"); }
+
+// ─── SPEND BAR ───────────────────────────────────────────────────
+new ApexCharts(document.getElementById("chartSpend"), {
+  ...APEX_BASE,
+  chart:{ ...APEX_BASE.chart, type:"bar", height:250 },
+  series:[{ name:"Xarajat ($)", data:CAMPAIGNS.map(c=>+c.spent.toFixed(2)) }],
+  xaxis:{ categories:labels, labels:{ style:{colors:"#6b7280",fontSize:"10px"}, trim:true, maxHeight:70 } },
+  yaxis:{ labels:{ style:{colors:"#6b7280",fontSize:"10px"}, formatter:v=>"$"+v } },
+  colors:["#f59e0b"],
+  plotOptions:{ bar:{ borderRadius:5, columnWidth:"55%" } },
+  tooltip:{ theme:"dark", y:{ formatter:v=>"$"+v.toFixed(2) } },
+}).render();
+
+new ApexCharts(document.getElementById("chartResults"), {
+  ...APEX_BASE,
+  chart:{ ...APEX_BASE.chart, type:"bar", height:250 },
+  series:[{ name:"Natijalar", data:CAMPAIGNS.map(c=>c.results) }],
+  xaxis:{ categories:labels, labels:{ style:{colors:"#6b7280",fontSize:"10px"}, trim:true, maxHeight:70 } },
+  yaxis:{ labels:{ style:{colors:"#6b7280",fontSize:"10px"} } },
+  colors:["#22c55e"],
+  plotOptions:{ bar:{ borderRadius:5, columnWidth:"55%" } },
+  tooltip:{ theme:"dark", y:{ formatter:v=>v+" ta" } },
+}).render();
+</script>
+</body>
+</html>
